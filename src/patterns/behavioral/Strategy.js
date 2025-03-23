@@ -12,7 +12,7 @@ export const strategyPattern = {
     
     problem: 'En muchos sistemas, un mismo problema puede resolverse de diferentes maneras según el contexto. Implementar estas variantes directamente en el código cliente usando condicionales crea dependencias rígidas, dificulta la mantención y viola el principio Open/Closed. A medida que aumentan las variantes o se añaden nuevas condiciones, el código se vuelve cada vez más complejo y propenso a errores. Además, mezclar múltiples algoritmos con la lógica de negocio dificulta la reutilización, el testing y la extensión del sistema cuando aparecen nuevos requisitos.',
     
-    solution: 'El patrón Strategy define una familia de algoritmos, encapsula cada uno en una clase separada que implementa una interfaz común, y los hace intercambiables. Permite seleccionar el algoritmo en tiempo de ejecución. La clase contexto mantiene una referencia a una estrategia y delega en ella la ejecución del algoritmo. Esta separación permite modificar, añadir o eliminar algoritmos sin afectar al contexto o a los clientes. El contexto puede cambiar dinámicamente la estrategia utilizada, ya sea por requerimiento del cliente o en respuesta a condiciones de ejecución.',
+    solution: 'El patrón Strategy define una familia de algoritmos, encapsula cada uno en una clase separada que implementa una interfaz común, y los hace intercambiables. Permite seleccionar el algoritmo en tiempo de ejecución. La clase contexto mantiene una referencia a una estrategia y delega en ella la ejecución del algoritmo. Esta separación permite modificar, añadir o eliminar algoritmos sin afectar al contexto o a los clientes. El contexto puede cambiar dinámicamente la estrategia utilizada, ya sea por requerimiento del cliente o en respuesta a condiciones de ejecución. El poder del patrón Strategy radica en su capacidad para encapsular algoritmos completos, incluyendo sus dependencias y estado interno, detrás de una interfaz simple y uniforme, lo que facilita enormemente su intercambio y prueba.',
     
     applicability: [
       'Cuando necesitas usar diferentes variantes de un algoritmo dentro de un objeto y poder cambiarlas durante el tiempo de ejecución',
@@ -22,7 +22,10 @@ export const strategyPattern = {
       'Para eliminar condicionales grandes que seleccionan el comportamiento a ejecutar, reemplazándolos con objetos estrategia',
       'Cuando quieres ocultar la complejidad de múltiples algoritmos del código cliente',
       'Cuando tienes un conjunto de algoritmos donde solo uno será utilizado en un momento dado según las condiciones de ejecución o entradas del cliente',
-      'Cuando deseas implementar el principio de responsabilidad única separando la política de selección de algoritmos de su implementación'
+      'Cuando deseas implementar el principio de responsabilidad única separando la política de selección de algoritmos de su implementación',
+      'Para facilitar la adición de nuevos comportamientos sin modificar las clases existentes (Principio Open/Closed)',
+      'Cuando diferentes partes de la aplicación tienen requisitos variables para el mismo tipo de operación',
+      'Para aislar el conocimiento específico del algoritmo del código que lo utiliza, facilitando cambios y mantenimiento'
     ],
     
     consequences: [
@@ -35,7 +38,10 @@ export const strategyPattern = {
       'Mejora la cohesión al separar comportamientos específicos de la lógica general',
       'Puede aumentar el número de objetos en el sistema, creando sobrecarga si hay muchas estrategias',
       'Incrementa la complejidad inicial debido a la creación de múltiples clases e interfaces',
-      'El cliente debe conocer las diferentes estrategias para elegir la apropiada'
+      'El cliente debe conocer las diferentes estrategias para elegir la apropiada',
+      'Puede complicar el diseño si las estrategias requieren comunicación bidireccional con el contexto',
+      'Posible sobrecarga de rendimiento en caso de estrategias que requieren estado compartido entre llamadas',
+      'Dificultad para mantener la consistencia entre estrategias relacionadas si cambian los requisitos de la interfaz común'
     ],
     
     notes: `
@@ -47,6 +53,8 @@ export const strategyPattern = {
         <li><strong>Flexibilidad en sistemas extensibles:</strong> Cuando desarrollas frameworks o aplicaciones que necesitan ser extendidas por otros desarrolladores con nuevos comportamientos sin modificar el código base.</li>
         <li><strong>Operaciones con políticas variables:</strong> Como estrategias de cálculo de impuestos, validación de datos, rutas de navegación, o algoritmos de pricing, donde las reglas pueden variar según jurisdicción, tipo de usuario o temporada.</li>
         <li><strong>Comportamientos según contexto:</strong> Cuando el comportamiento debe adaptarse según el entorno de ejecución, como estrategias de renderizado optimizadas para diferentes tipos de hardware.</li>
+        <li><strong>Múltiples implementaciones de una misma operación:</strong> Por ejemplo, diferentes algoritmos de compresión (ZIP, GZIP, BZIP2), métodos de autenticación (contraseña, biométrica, token), o algoritmos de búsqueda (lineal, binaria, hash).</li>
+        <li><strong>Necesidad de cambiar comportamiento a lo largo del ciclo de vida:</strong> Cuando un objeto debe comportarse de forma diferente a lo largo de su vida útil, pero sin cambiar su interfaz pública.</li>
       </ul>
       
       <h3>Variantes del patrón Strategy:</h3>
@@ -57,6 +65,8 @@ export const strategyPattern = {
         <li><strong>Strategy contextual:</strong> Donde la estrategia tiene acceso al contexto para adaptar su comportamiento basándose en el estado actual, creando una relación más estrecha pero manteniendo la separación de responsabilidades.</li>
         <li><strong>Strategy con fábrica:</strong> Combinando con el patrón Factory para crear estrategias apropiadas automáticamente según diferentes criterios sin que el cliente necesite conocer los detalles de implementación.</li>
         <li><strong>Strategy con flyweight:</strong> Para reutilizar estrategias comunes entre múltiples contextos, reduciendo la sobrecarga de memoria cuando hay muchas instancias de contexto.</li>
+        <li><strong>Strategy paramétrico:</strong> Donde una única estrategia puede configurarse mediante parámetros para exhibir diferentes comportamientos, reduciendo la proliferación de clases de estrategia.</li>
+        <li><strong>Strategy dinámico:</strong> Donde las propias estrategias pueden ser generadas o modificadas en tiempo de ejecución, como en programación genética o sistemas que aprenden de su entorno.</li>
       </ul>
       
       <h3>Ejemplos prácticos en aplicaciones reales:</h3>
@@ -98,13 +108,157 @@ class NavigationApp {
   }
 }
         </pre>
-        <li><strong>Métodos de pago en e-commerce:</strong> Tarjeta de crédito, PayPal, transferencia bancaria, cada uno con su propia estrategia de procesamiento, autenticación y validación.</li>
-        <li><strong>Algoritmos de compresión:</strong> ZIP, RAR, 7Z, cada uno implementado como una estrategia diferente para un mismo contexto de compresión de archivos.</li>
+        
+        <li><strong>Métodos de pago en e-commerce:</strong> Diferentes métodos como tarjeta de crédito, PayPal, transferencia bancaria, cada uno con su lógica específica:</li>
+        <pre>
+// Estrategia de pago en un sistema de comercio electrónico
+interface PaymentStrategy {
+  pay(amount: number): boolean;
+  getPaymentDetails(): PaymentInfo;
+}
+
+class CreditCardStrategy implements PaymentStrategy {
+  constructor(private cardNumber: string, private expiryDate: string, private cvv: string) {}
+  
+  pay(amount: number) {
+    // Procesar pago con tarjeta de crédito a través de pasarela de pago
+    console.log(`Pagando ${amount} con tarjeta ${this.cardNumber.substr(-4)}`);
+    return processCreditCardPayment(this.cardNumber, this.expiryDate, this.cvv, amount);
+  }
+  
+  getPaymentDetails() {
+    return {
+      method: "Credit Card",
+      lastDigits: this.cardNumber.substr(-4),
+      expiryDate: this.expiryDate
+    };
+  }
+}
+
+class PayPalStrategy implements PaymentStrategy {
+  constructor(private email: string, private password: string) {}
+  
+  pay(amount: number) {
+    // Autenticar con PayPal y procesar el pago
+    console.log(`Pagando ${amount} con PayPal (${this.email})`);
+    return processPayPalPayment(this.email, this.password, amount);
+  }
+  
+  getPaymentDetails() {
+    return {
+      method: "PayPal",
+      email: this.email
+    };
+  }
+}
+
+class ShoppingCart {
+  private items = [];
+  private paymentStrategy: PaymentStrategy;
+  
+  addItem(item) {
+    this.items.push(item);
+  }
+  
+  setPaymentStrategy(strategy: PaymentStrategy) {
+    this.paymentStrategy = strategy;
+  }
+  
+  checkout() {
+    const amount = this.calculateTotal();
+    return this.paymentStrategy.pay(amount);
+  }
+  
+  getReceipt() {
+    return {
+      items: this.items,
+      total: this.calculateTotal(),
+      paymentInfo: this.paymentStrategy.getPaymentDetails()
+    };
+  }
+  
+  private calculateTotal() {
+    return this.items.reduce((total, item) => total + item.price, 0);
+  }
+}
+        </pre>
+        
+        <li><strong>Estrategias de exportación de datos:</strong> Diferentes formatos como CSV, JSON, XML, cada uno con su propia lógica de serialización:</li>
+        <pre>
+interface ExportStrategy {
+  export(data: any[]): string;
+  getFileExtension(): string;
+}
+
+class CSVExportStrategy implements ExportStrategy {
+  export(data: any[]) {
+    const headers = Object.keys(data[0]).join(',');
+    const rows = data.map(item => Object.values(item).join(','));
+    return [headers, ...rows].join('\n');
+  }
+  
+  getFileExtension() {
+    return 'csv';
+  }
+}
+
+class JSONExportStrategy implements ExportStrategy {
+  export(data: any[]) {
+    return JSON.stringify(data, null, 2);
+  }
+  
+  getFileExtension() {
+    return 'json';
+  }
+}
+
+class XMLExportStrategy implements ExportStrategy {
+  export(data: any[]) {
+    let xml = '<?xml version="1.0" encoding="UTF-8" ?><items>';
+    
+    for (const item of data) {
+      xml += '<item>';
+      for (const [key, value] of Object.entries(item)) {
+        xml += `<${key}>${value}</${key}>`;
+      }
+      xml += '</item>';
+    }
+    
+    xml += '</items>';
+    return xml;
+  }
+  
+  getFileExtension() {
+    return 'xml';
+  }
+}
+
+class DataExporter {
+  constructor(private exportStrategy: ExportStrategy) {}
+  
+  setExportStrategy(strategy: ExportStrategy) {
+    this.exportStrategy = strategy;
+  }
+  
+  exportData(data: any[]) {
+    const output = this.exportStrategy.export(data);
+    const filename = `export_${Date.now()}.${this.exportStrategy.getFileExtension()}`;
+    
+    // Guardar archivo o devolverlo
+    return { filename, content: output };
+  }
+}
+        </pre>
+
         <li><strong>Validación en formularios:</strong> Diferentes estrategias de validación según el tipo de campo (email, teléfono, fecha) o contexto (registro, login, recuperación de contraseña).</li>
         <li><strong>Estrategias de autenticación:</strong> Contraseña local, OAuth, LDAP, autenticación biométrica, donde el sistema de login utiliza la estrategia apropiada según la configuración.</li>
         <li><strong>Algoritmos de renderizado:</strong> En gráficos por computadora, diferentes estrategias para renderizar objetos basadas en complejidad o distancia para optimizar rendimiento.</li>
         <li><strong>Caching:</strong> Diferentes estrategias de caché (LRU, FIFO, TTL) según el tipo de datos o patrones de acceso.</li>
         <li><strong>Pricing dinámico:</strong> En comercio electrónico, diferentes algoritmos de fijación de precios según demanda, inventario, temporada o segmento de cliente.</li>
+        <li><strong>Estrategias de compresión de archivos:</strong> Diferentes algoritmos de compresión según el tipo de contenido y requerimientos de tamaño/velocidad.</li>
+        <li><strong>Estrategias de persistencia:</strong> Guardar datos en diferentes medios o formatos según configuración o necesidades (SQL, NoSQL, archivo local, memoria, etc).</li>
+        <li><strong>Estrategias de notificación:</strong> Enviar notificaciones por diferentes canales (email, SMS, push, in-app) según preferencias del usuario o tipo de mensaje.</li>
+        <li><strong>Algoritmos de IA:</strong> Seleccionar diferentes modelos de machine learning según el tipo de datos, precisión requerida o recursos disponibles.</li>
       </ul>
       
       <h3>Implementación Efectiva:</h3>
@@ -116,6 +270,11 @@ class NavigationApp {
         <li><strong>Estrategias parametrizadas:</strong> Permite configurar estrategias mediante parámetros para hacerlas más flexibles sin proliferar clases.</li>
         <li><strong>Considera funciones:</strong> En lenguajes con funciones de primera clase, una simple función puede ser más adecuada que una clase completa para estrategias simples.</li>
         <li><strong>Evita estado en estrategias:</strong> Preferiblemente, las estrategias deberían ser stateless para facilitar su reutilización entre diferentes contextos.</li>
+        <li><strong>Extrae solo lo que varía:</strong> No extraigas todo el comportamiento a estrategias, sino solo las partes que realmente podrían cambiar.</li>
+        <li><strong>Estrategias anidadas:</strong> Considera la posibilidad de componer estrategias para resolver problemas complejos (patrón Composite con Strategy).</li>
+        <li><strong>Prioriza testabilidad:</strong> Diseña estrategias fácilmente verificables, idealmente con una única responsabilidad bien definida.</li>
+        <li><strong>Documentación clara:</strong> Documenta el propósito y comportamiento esperado de cada estrategia para facilitar su selección y uso.</li>
+        <li><strong>Estrategias internas:</strong> En algunos casos, las estrategias pueden ser clases internas del contexto para limitar su visibilidad si no se necesitan externamente.</li>
       </ul>
       
       <h3>Strategy vs State vs Command vs Template Method:</h3>
@@ -125,6 +284,21 @@ class NavigationApp {
         <li><strong>Command:</strong> Encapsula una solicitud completa como un objeto, permitiendo parametrizar clientes con operaciones, encolar solicitudes y soportar operaciones reversibles. Se enfoca en qué hacer, no en cómo hacerlo.</li>
         <li><strong>Template Method:</strong> Define el esqueleto de un algoritmo, delegando algunos pasos a las subclases. A diferencia de Strategy, usa herencia en lugar de composición y tiene una estructura fija con puntos de extensión predefinidos.</li>
         <li><strong>Decorator:</strong> Añade responsabilidades a objetos dinámicamente, mientras que Strategy cambia el comportamiento interno sin añadir responsabilidades.</li>
+        <li><strong>Bridge:</strong> Separa una abstracción de su implementación, permitiendo que ambas varíen independientemente. Strategy se enfoca más en intercambiar algoritmos que en desacoplar abstracciones de implementaciones.</li>
+        <li><strong>Visitor:</strong> Permite añadir nuevas operaciones a una jerarquía de clases sin modificarlas. Mientras Strategy cambia cómo se hace algo dentro de un contexto, Visitor añade qué puede hacerse con un conjunto de objetos.</li>
+        <li><strong>Chain of Responsibility:</strong> Pasa una solicitud a lo largo de una cadena de manejadores hasta que uno la procese. Difiere de Strategy en que no se sabe a priori quién manejará la solicitud.</li>
+      </ul>
+
+      <h3>Consideraciones de rendimiento y escalabilidad:</h3>
+      <ul>
+        <li><strong>Creación de estrategias:</strong> Si las estrategias son costosas de crear, considera el uso de Flyweight o Singleton para compartir instancias cuando sea seguro.</li>
+        <li><strong>Estado compartido:</strong> Si el estado entre el contexto y las estrategias debe compartirse, evalúa el impacto en el acoplamiento y posibles alternativas como pasar explícitamente la información necesaria.</li>
+        <li><strong>Estrategias inmutables:</strong> Considera hacer las estrategias inmutables para facilitar su uso seguro en entornos concurrentes.</li>
+        <li><strong>Lazy initialization:</strong> Si hay muchas estrategias posibles pero solo se usa un subconjunto en cada sesión, considera crearlas bajo demanda.</li>
+        <li><strong>Caché de estrategias:</strong> Para aplicaciones con alta carga, mantener un caché de estrategias recientes puede mejorar el rendimiento si hay patrones predecibles de uso.</li>
+        <li><strong>Granularidad:</strong> Evalúa cuidadosamente el nivel de granularidad de las estrategias; demasiado fino puede llevar a explosión de clases, demasiado grueso puede reducir la flexibilidad.</li>
+        <li><strong>Impacto en la UI:</strong> Si el cambio de estrategia afecta la interfaz de usuario, coordina adecuadamente las actualizaciones para evitar inconsistencias visuales.</li>
+        <li><strong>Persistencia:</strong> Si el contexto debe persistirse, considera cómo serializar o guardar la estrategia actual para restaurar el estado correctamente.</li>
       </ul>
     `
   },

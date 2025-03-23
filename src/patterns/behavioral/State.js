@@ -665,7 +665,7 @@ public class StatePatternDemo {
     
     problem: 'Cuando el comportamiento de un objeto debe cambiar dependiendo de su estado interno, y el número de posibles estados es grande o puede cambiar con el tiempo, el uso de condicionales en cada método crea código difícil de mantener y extender. Estos condicionales esparcidos por todo el código generan complejidad, redundancia y dificultad para añadir nuevos estados. Además, la lógica de transición entre estados queda distribuida y fragmentada a lo largo del código, dificultando la comprensión del ciclo de vida completo del objeto y aumentando el riesgo de errores cuando se modifican las reglas de transición o se añaden nuevos estados.',
     
-    solution: 'El patrón State sugiere crear clases separadas para cada estado posible del objeto y extraer los comportamientos específicos de estado en estas clases. El objeto original, llamado contexto, mantiene una referencia a un objeto de estado que representa su estado actual y delega todas las operaciones relacionadas con el estado a este objeto. Para cambiar el estado del contexto, se reemplaza el objeto de estado activo con otro objeto que representa el nuevo estado. Este enfoque elimina la necesidad de condicionales extensos, encapsula el comportamiento específico de cada estado en su propia clase, y hace explícitas las transiciones entre estados, mejorando la legibilidad y mantenibilidad del código.',
+    solution: 'El patrón State resuelve este problema definiendo una clase separada para cada estado posible del objeto y extrayendo los comportamientos específicos de cada estado en estas clases individuales. La idea fundamental es convertir estados condicionales en jerarquías de clases y relaciones de composición. El objeto original, llamado contexto, mantiene una referencia a un objeto de estado que representa su estado actual y delega todas las operaciones relacionadas con el estado a este objeto. Para cambiar el estado del contexto, simplemente se reemplaza el objeto de estado activo con otro objeto que representa el nuevo estado. Este enfoque proporciona varias ventajas clave: (1) elimina las condicionales extensas al encapsular cada variante de comportamiento en su propia clase, (2) hace que las transiciones entre estados sean explícitas y estén centralizadas, (3) facilita la adición de nuevos estados sin modificar el código existente, y (4) permite que los estados compartan comportamiento común a través de herencia. La estructura típica incluye una interfaz o clase abstracta State que define los métodos comunes, clases concretas para cada estado, y una clase Context que mantiene una referencia al estado actual y delega las operaciones a éste.',
     
     applicability: [
       'Cuando el comportamiento de un objeto depende de su estado y debe cambiar en tiempo de ejecución',
@@ -676,7 +676,10 @@ public class StatePatternDemo {
       'Cuando se necesita modelar de forma explícita un ciclo de vida complejo en objetos persistentes',
       'Para implementar máquinas de estado finito donde el comportamiento del sistema cambia completamente según el estado actual',
       'Cuando quieres implementar sistemas reactivos que responden de manera diferente a los mismos eventos según su estado interno',
-      'Para objetos que deben cambiar su interfaz visible (métodos disponibles) según su estado, simulando el cambio de clase'
+      'Para objetos que deben cambiar su interfaz visible (métodos disponibles) según su estado, simulando el cambio de clase',
+      'En sistemas que requieren validaciones específicas dependientes del estado, donde ciertas operaciones solo son válidas en determinados estados',
+      'Para modelar procesos de negocio con flujos de trabajo bien definidos y transiciones controladas entre etapas',
+      'Cuando necesitas implementar protocolos de comunicación con estados y transiciones claras'
     ],
     
     consequences: [
@@ -691,7 +694,9 @@ public class StatePatternDemo {
       'Permite validaciones específicas según el estado, evitando operaciones inválidas según el estado actual',
       'Simplifica la depuración al hacer más explícito el flujo de control entre estados',
       'Aumenta la testabilidad al poder probar cada estado de forma aislada',
-      'Puede crear overhead innecesario si el objeto tiene pocos estados o comportamientos simples'
+      'Puede crear overhead innecesario si el objeto tiene pocos estados o comportamientos simples',
+      'Requiere conocer de antemano todos los posibles estados y transiciones, lo que puede ser restrictivo en sistemas muy dinámicos',
+      'Mejora la escalabilidad al permitir evolucionar la máquina de estados sin afectar al código cliente'
     ],
     
     notes: `
@@ -704,6 +709,8 @@ public class StatePatternDemo {
         <li><strong>Objetos con ciclo de vida:</strong> Cuando necesitas modelar objetos que tienen un ciclo de vida complejo con diferentes comportamientos en cada etapa, como documentos en un sistema de gestión documental.</li>
         <li><strong>Sistemas de juego:</strong> Para controlar el comportamiento de elementos del juego según su estado (personajes, enemigos, niveles, etc.) donde el comportamiento cambia radicalmente entre estados.</li>
         <li><strong>Validación contextual:</strong> Cuando las validaciones que se aplican a una operación dependen del estado actual del objeto, permitiendo o denegando operaciones específicas.</li>
+        <li><strong>Protocolos de comunicación:</strong> Para implementar protocolos donde cada estado espera ciertos mensajes y responde de forma diferente según la fase actual del protocolo (establecimiento de conexión, negociación, transferencia, finalización).</li>
+        <li><strong>Sistemas embebidos:</strong> En sistemas con recursos limitados donde el comportamiento debe cambiar drásticamente según el estado operativo (inicialización, funcionamiento normal, modo de bajo consumo, recuperación de errores).</li>
       </ul>
       
       <h3>Variantes del patrón State:</h3>
@@ -717,6 +724,9 @@ public class StatePatternDemo {
         <li><strong>State con eventos:</strong> Donde las transiciones son desencadenadas por eventos explícitos que son procesados de manera diferente según el estado actual.</li>
         <li><strong>State con transiciones condicionales:</strong> Donde las transiciones entre estados dependen no solo del evento sino también de condiciones adicionales que se evalúan en tiempo de ejecución.</li>
         <li><strong>State con acciones de entrada/salida:</strong> Donde se definen acciones específicas que se ejecutan al entrar o salir de un estado, independientemente de la transición específica.</li>
+        <li><strong>State persistente:</strong> Donde el estado actual y sus datos asociados pueden serializarse para permitir que el objeto se almacene y recupere desde una base de datos o archivo, manteniendo su estado interno.</li>
+        <li><strong>State anidado (Hierarchical State Machine):</strong> Donde un estado puede contener su propia máquina de estados interna, permitiendo modelar sistemas complejos con varios niveles de comportamiento.</li>
+        <li><strong>State paralelo:</strong> Donde un objeto puede estar simultáneamente en múltiples estados independientes que controlan diferentes aspectos de su comportamiento.</li>
       </ul>
       
       <h3>Ejemplos prácticos en aplicaciones reales:</h3>
@@ -786,7 +796,94 @@ class PlayingState implements PlayerState {
         <li><strong>Editor de documentos:</strong> Con diferentes modos de edición como Inserción, Selección, Formato, donde cada estado procesa las pulsaciones de teclado y clics de forma diferente.</li>
         <li><strong>Conexiones de red:</strong> Gestionando estados como Desconectado, Conectando, Conectado, Transferencia de datos, con comportamientos específicos para cada operación de red.</li>
         <li><strong>Sistemas de autorización:</strong> Con estados de usuario como Anónimo, Autenticado, Autorizado, Bloqueado, donde cada estado determina las operaciones permitidas.</li>
-        <li><strong>Control de juegos:</strong> Para implementar comportamientos de enemigos con estados como Patrullar, Perseguir, Atacar, Huir, con distintas lógicas de movimiento y comportamiento.</li>
+        <li><strong>Control de juegos:</strong> Para implementar comportamientos de enemigos con estados como Patrullar, Perseguir, Atacar, Huir, con distintas lógicas de movimiento y comportamiento:
+        <pre>
+// Implementación de IA de enemigo con patrón State
+class Enemy {
+  private EnemyState currentState;
+  private Position position;
+  private int health;
+  private Player target;
+  
+  public Enemy() {
+    this.currentState = new PatrolState();
+    this.currentState.setEnemy(this);
+    this.health = 100;
+  }
+  
+  public void update() {
+    // Este método se llama en cada frame del juego
+    currentState.update();
+  }
+  
+  public void seePlayer(Player player) {
+    this.target = player;
+    currentState.onPlayerSeen();
+  }
+  
+  public void losePlayerSight() {
+    currentState.onPlayerLost();
+  }
+  
+  public void takeDamage(int amount) {
+    this.health -= amount;
+    if (this.health < 20) {
+      // Comportamiento específico cuando la salud es baja
+      currentState.onLowHealth();
+    }
+    currentState.onDamageReceived();
+  }
+  
+  public void changeState(EnemyState newState) {
+    this.currentState = newState;
+    this.currentState.setEnemy(this);
+  }
+  
+  // Getters, setters y otros métodos...
+}
+
+interface EnemyState {
+  void setEnemy(Enemy enemy);
+  void update();
+  void onPlayerSeen();
+  void onPlayerLost();
+  void onDamageReceived();
+  void onLowHealth();
+}
+
+class ChaseState implements EnemyState {
+  private Enemy enemy;
+  
+  public void setEnemy(Enemy enemy) {
+    this.enemy = enemy;
+  }
+  
+  public void update() {
+    // Lógica para perseguir al jugador
+    // Calcular ruta hacia el jugador y mover al enemigo
+  }
+  
+  public void onPlayerSeen() {
+    // Ya estamos persiguiendo al jugador
+  }
+  
+  public void onPlayerLost() {
+    // Cambiar a estado de búsqueda
+    enemy.changeState(new SearchState());
+  }
+  
+  public void onDamageReceived() {
+    // Posiblemente cambia a estado de ataque
+    enemy.changeState(new AttackState());
+  }
+  
+  public void onLowHealth() {
+    // Huir cuando la salud es baja
+    enemy.changeState(new FleeState());
+  }
+}
+        </pre>
+        </li>
         <li><strong>Aplicación de impuestos:</strong> Estados como Borrador, En revisión, Aprobado, Rechazado, con diferentes niveles de edición y validación permitidos.</li>
         <li><strong>Semáforos y sistemas de control:</strong> Implementando la secuencia de estados y transiciones, con comportamientos específicos para cada color/fase.</li>
         <li><strong>Formularios de múltiples pasos:</strong> Donde cada paso representa un estado con diferentes validaciones y opciones disponibles:
@@ -857,6 +954,8 @@ class AddressInfoState implements FormState {
 }
         </pre>
         </li>
+        <li><strong>Máquinas expendedoras:</strong> Con estados como SinSelección, Seleccionado, Dispensando, Mantenimiento, donde cada estado maneja los eventos de entrada del usuario de manera diferente.</li>
+        <li><strong>Aplicaciones de chat:</strong> Con estados como Desconectado, Conectando, Conectado, Escribiendo, En llamada, que determinan las acciones disponibles y cómo se procesan los mensajes entrantes.</li>
       </ul>
       
       <h3>Implementación efectiva del patrón State:</h3>
@@ -869,6 +968,10 @@ class AddressInfoState implements FormState {
         <li><strong>Minimiza dependencia del contexto:</strong> Pasa solo la información necesaria a los métodos de estado, o proporciona interfaces específicas en el contexto para limitar el acoplamiento.</li>
         <li><strong>Considera estados dinámicos:</strong> En algunos casos, los estados pueden generarse dinámicamente o configurarse en tiempo de ejecución, aumentando la flexibilidad del sistema.</li>
         <li><strong>Maneja estado persistente:</strong> Para objetos de larga duración o que requieren persistencia, implementa serialización de estado o mapeo a un formato persistente (como bases de datos).</li>
+        <li><strong>Definición formal de la máquina de estados:</strong> Para sistemas complejos, considera definir la máquina de estados formalmente (por ejemplo, mediante una tabla o un DSL) y generar código a partir de esa definición.</li>
+        <li><strong>Diseña para extensibilidad:</strong> Prevé la adición de nuevos estados y transiciones. La estructura de clases debe facilitar la incorporación de nuevos estados sin modificar los existentes.</li>
+        <li><strong>Documenta la máquina de estados:</strong> Proporciona diagramas y documentación clara sobre los estados posibles y las reglas de transición, especialmente para sistemas complejos.</li>
+        <li><strong>Verifica la cobertura de estados:</strong> Asegúrate de que todos los estados manejan todas las operaciones posibles, incluso si es para rechazarlas explícitamente.</li>
       </ul>
       
       <h3>State vs Strategy vs Command vs Template Method:</h3>
@@ -878,6 +981,8 @@ class AddressInfoState implements FormState {
         <li><strong>Command:</strong> Encapsula una solicitud como un objeto, permitiendo parametrizar objetos con operaciones. Puede combinarse con State cuando diferentes estados requieren ejecutar diferentes comandos. Command se enfoca en la operación, mientras State se enfoca en el contexto que cambia.</li>
         <li><strong>Template Method:</strong> Define el esqueleto de un algoritmo, permitiendo que las subclases redefinan ciertos pasos. Se diferencia de State en que Template Method usa herencia para variar partes de un algoritmo, mientras State usa composición para cambiar comportamientos completos.</li>
         <li><strong>Visitor:</strong> Permite separar algoritmos de la estructura de objetos sobre la que operan. A diferencia de State que cambia el comportamiento del objeto según su estado interno, Visitor mantiene la estructura pero permite aplicar diferentes operaciones sobre ella.</li>
+        <li><strong>Memento:</strong> Se puede combinar con State para guardar el historial de estados y permitir restaurarlos. Mientras State gestiona el comportamiento actual, Memento captura y externaliza el estado interno para recuperarlo posteriormente.</li>
+        <li><strong>Observer:</strong> Puede usarse junto con State para notificar a otros objetos cuando un contexto cambia de estado, permitiendo que el sistema reaccione a estos cambios.</li>
       </ul>
     `
   }
