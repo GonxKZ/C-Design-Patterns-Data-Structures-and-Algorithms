@@ -6,6 +6,8 @@ import factoryMethodPattern from '../patterns/creational/FactoryMethod';
 import builderPattern from '../patterns/creational/Builder';
 import abstractFactory from '../patterns/creational/AbstractFactory';
 import prototypePattern from '../patterns/creational/Prototype';
+import multitonPattern from '../patterns/creational/Multiton';
+import objectPoolPattern from '../patterns/creational/ObjectPool';
 import { adapterPattern } from '../patterns/structural/Adapter';
 import { strategyPattern } from '../patterns/behavioral/Strategy';
 import compositePattern from '../patterns/structural/Composite';
@@ -25,6 +27,7 @@ import mementoPattern from '../patterns/behavioral/Memento';
 import visitorPattern from '../patterns/behavioral/Visitor';
 import interpreterPattern from '../patterns/behavioral/Interpreter';
 import nullObjectPattern from '../patterns/behavioral/NullObject';
+import filterPattern from '../patterns/structural/Filter';
 // Patrones arquitectónicos
 import mvcPattern from '../patterns/architectural/MVC';
 import mvpPattern from '../patterns/architectural/MVP';
@@ -44,6 +47,13 @@ import antiCorruptionLayerPattern from '../patterns/architectural/AntiCorruption
 import threadPoolPattern from '../patterns/concurrency/ThreadPool';
 import producerConsumerPattern from '../patterns/concurrency/ProducerConsumer';
 import leaderElectionPattern from '../patterns/concurrency/LeaderElection';
+import barrierPattern from '../patterns/concurrency/Barrier';
+import readWriteLockPattern from '../patterns/concurrency/ReadWriteLock';
+import monitorPattern from '../patterns/concurrency/Monitor';
+import semaphorePattern from '../patterns/concurrency/Semaphore';
+import mutexPattern from '../patterns/concurrency/Mutex';
+import activeObjectPattern from '../patterns/concurrency/ActiveObject';
+import futurePromisePattern from '../patterns/concurrency/FuturePromise';
 // Patrones funcionales
 import monadPattern from '../patterns/functional/Monad';
 import memoizationPattern from '../patterns/functional/Memoization';
@@ -350,6 +360,8 @@ class Main {
   'factory-method': factoryMethodPattern,
   'builder': builderPattern,
   'prototype': prototypePattern,
+  'multiton': multitonPattern,
+  'object-pool': objectPoolPattern,
   // PATRONES ESTRUCTURALES
   'adapter': adapterPattern,
   'composite': compositePattern,
@@ -358,6 +370,7 @@ class Main {
   'facade': facadePattern,
   'bridge': bridgePattern,
   'flyweight': flyweightPattern,
+  'filter': filterPattern,
   // PATRONES DE COMPORTAMIENTO
   'strategy': strategyPattern,
   'command': commandPattern,
@@ -390,6 +403,13 @@ class Main {
   'thread-pool': threadPoolPattern,
   'producer-consumer': producerConsumerPattern,
   'leader-election': leaderElectionPattern,
+  'barrier': barrierPattern,
+  'read-write-lock': readWriteLockPattern,
+  'monitor': monitorPattern,
+  'semaphore': semaphorePattern,
+  'mutex': mutexPattern,
+  'active-object': activeObjectPattern,
+  'future-promise': futurePromisePattern,
   // PATRONES FUNCIONALES
   'monad': monadPattern,
   'memoization': memoizationPattern,
