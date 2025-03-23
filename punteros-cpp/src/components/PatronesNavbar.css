@@ -1,0 +1,145 @@
+.patrones-navbar {
+  background-color: #1e2a38;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  flex-wrap: wrap;
+}
+
+.navbar-title {
+  margin-right: 30px;
+}
+
+.navbar-title h2 {
+  color: #3498db;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.navbar-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex: 1;
+}
+
+.category-item {
+  position: relative;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #ecf0f1;
+  background-color: #34495e;
+  transition: background-color 0.3s ease;
+  font-weight: 500;
+}
+
+.category-item.active {
+  background-color: #2980b9;
+  font-weight: 600;
+}
+
+.category-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #e74c3c;
+}
+
+.navbar-patterns-dropdown {
+  position: relative;
+  margin-left: auto;
+}
+
+.patterns-dropdown-button {
+  padding: 10px 15px;
+  background-color: #34495e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: 500;
+  min-width: 200px;
+  text-align: left;
+}
+
+.patterns-dropdown-content {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: #2c3e50;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 250px;
+  z-index: 100;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.pattern-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  color: #ecf0f1;
+  transition: background-color 0.2s ease;
+}
+
+.pattern-item.active {
+  background-color: #3498db;
+  font-weight: 600;
+}
+
+.pattern-item:hover {
+  background-color: rgba(52, 152, 219, 0.2);
+}
+
+/* Lista horizontal de patrones */
+.patterns-horizontal-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 20px;
+  border-top: 1px solid #34495e;
+  overflow-x: auto;
+}
+
+.patterns-horizontal-list .pattern-item {
+  background-color: #2c3e50;
+  border-radius: 5px;
+  transition: all 0.2s ease;
+}
+
+.patterns-horizontal-list .pattern-item.active {
+  background-color: #3498db;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .navbar-title {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+  
+  .navbar-patterns-dropdown {
+    margin-left: 0;
+    margin-top: 10px;
+    width: 100%;
+  }
+  
+  .patterns-dropdown-button {
+    width: 100%;
+  }
+}
