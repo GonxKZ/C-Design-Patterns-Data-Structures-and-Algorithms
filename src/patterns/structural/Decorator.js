@@ -2,7 +2,7 @@ const decoratorPattern = {
   id: 'decorator',
   name: 'Decorator',
   category: 'structural',
-  description: 'El patrón Decorator permite añadir responsabilidades adicionales a objetos de forma dinámica, proporcionando una alternativa flexible a la herencia para extender la funcionalidad.',
+  description: 'Añade responsabilidades adicionales a un objeto dinámicamente. Los decoradores proporcionan una alternativa flexible a la herencia para extender la funcionalidad, permitiendo envolver objetos con nuevos comportamientos sin modificar su estructura original.',
   
   implementations: {
     cppTraditional: {
@@ -404,22 +404,66 @@ public class DecoratorDemo {
   ],
   
   theory: {
-    background: 'El patrón Decorator fue introducido por primera vez por el Gang of Four en su libro "Design Patterns: Elements of Reusable Object-Oriented Software". Está inspirado en el concepto de composición sobre herencia, que es un principio fundamental en el diseño orientado a objetos.',
-    problem: 'A veces necesitamos añadir responsabilidades a objetos individuales dinámicamente y de forma transparente, sin afectar a otros objetos. La herencia no es viable porque es estática y se aplica a toda una clase, no a instancias individuales.',
-    solution: 'El patrón Decorator adjunta responsabilidades adicionales a un objeto dinámicamente. Los decoradores proporcionan una alternativa flexible a la herencia para extender la funcionalidad, permitiendo añadir comportamientos antes o después de la operación del componente base.',
+    background: 'El patrón Decorator fue formalizado por la Banda de los Cuatro (GoF) y se inspira en el concepto de "envolver" un regalo, donde cada envoltura añade una característica nueva manteniendo la esencia del objeto original. Este patrón promueve el principio de responsabilidad única y el principio abierto/cerrado, permitiendo añadir comportamientos a objetos individuales sin afectar a otros objetos de la misma clase.',
+    
+    problem: 'Extender la funcionalidad de una clase mediante herencia no siempre es flexible o práctico. La herencia es estática y afecta a todas las instancias de una clase, lo que puede llevar a una explosión de subclases cuando se necesitan múltiples combinaciones de comportamientos. Además, la herencia puede violar el principio de responsabilidad única cuando se intentan combinar múltiples funcionalidades en una sola clase.',
+    
+    solution: 'El patrón Decorator proporciona una alternativa flexible a la herencia para extender la funcionalidad. En lugar de utilizar la herencia para añadir responsabilidades, el patrón envuelve un objeto dentro de otro objeto (decorador) que añade la funcionalidad adicional. Múltiples decoradores pueden anidarse, cada uno añadiendo diferentes funcionalidades de forma transparente para los clientes.',
+    
     applicability: [
-      'Cuando necesitas añadir responsabilidades a objetos individuales dinámicamente y de forma transparente, sin afectar a otros objetos.',
-      'Cuando la extensión mediante herencia no es práctica o posible, como con clases finales (sealed/final classes).',
-      'Cuando quieres añadir y eliminar responsabilidades en tiempo de ejecución.',
-      'Cuando la extensión mediante subclases resultaría en una explosión de clases para cubrir todas las combinaciones posibles.'
+      'Cuando necesitas añadir responsabilidades a objetos individuales dinámica y transparentemente, sin afectar a otros objetos',
+      'Para responsabilidades que pueden retirarse o agregarse independientemente',
+      'Cuando la extensión mediante subclases no es práctica debido a una explosión combinatoria de clases',
+      'Cuando quieres añadir funcionalidades a un objeto sin modificar su código (principio Open/Closed)',
+      'Cuando necesitas combinar múltiples comportamientos en diferentes configuraciones'
     ],
+    
     consequences: [
-      'Mayor flexibilidad que la herencia estática, permitiendo añadir o eliminar responsabilidades en tiempo de ejecución.',
-      'Evita clases recargadas de características en los niveles altos de la jerarquía.',
-      'Permite combinar múltiples comportamientos envolviendo un objeto con varios decoradores.',
-      'Un decorador y su componente no son idénticos, por lo que no se debe confiar en la identidad del objeto cuando se usan decoradores.',
-      'Puede resultar en sistemas con muchos objetos pequeños similares que son difíciles de aprender y depurar.'
-    ]
+      'Mayor flexibilidad que la herencia estática, permitiendo añadir o eliminar responsabilidades en tiempo de ejecución',
+      'Evita clases sobrecargadas de características en lo alto de la jerarquía de herencia',
+      'Permite combinar varios comportamientos envolviendo un objeto con múltiples decoradores',
+      'Respeta el principio de responsabilidad única al separar la funcionalidad en clases distintas',
+      'Puede resultar en un diseño con muchos objetos pequeños similares que dificulten el depurado',
+      'La configuración del decorador puede ser tediosa para el cliente si requiere múltiples capas',
+      'Puede complicar el proceso de identificación del tipo específico de un objeto'
+    ],
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Decorator?</h3>
+      <ul>
+        <li><strong>Composición dinámica:</strong> Cuando necesitas añadir o quitar comportamientos a objetos en tiempo de ejecución.</li>
+        <li><strong>Modificaciones no invasivas:</strong> Para añadir funcionalidad a objetos sin modificar su código, especialmente en código de terceros o bibliotecas que no puedes modificar.</li>
+        <li><strong>Comportamientos modulares:</strong> Cuando quieres implementar funcionalidades que pueden combinarse de múltiples formas sin crear una jerarquía de clases compleja.</li>
+        <li><strong>Extender objetos sellados:</strong> Para añadir funcionalidades a clases marcadas como final o sealed que no permiten herencia.</li>
+        <li><strong>Funcionalidades transversales:</strong> Para implementar aspectos como logging, transacciones, caché o autorización que afectan a múltiples clases de forma similar.</li>
+      </ul>
+      
+      <h3>Variantes del patrón Decorator:</h3>
+      <ul>
+        <li><strong>Decorator tradicional:</strong> La implementación clásica donde cada decorador envuelve al componente y delega operaciones.</li>
+        <li><strong>Decoradores con Mixins:</strong> Utiliza las capacidades de mezcla de características de lenguajes dinámicos para añadir comportamientos.</li>
+        <li><strong>Decoradores con anotaciones/metadatos:</strong> Como en Java o TypeScript, donde los decoradores modifican el comportamiento de clases o métodos mediante metadatos.</li>
+        <li><strong>Decoradores funcionales:</strong> En programación funcional, donde las funciones se componen para añadir comportamientos adicionales.</li>
+        <li><strong>Decorator dinámico con Proxy:</strong> Implementación que utiliza el patrón Proxy o metaprogramación para añadir comportamiento dinámicamente.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Streams de I/O:</strong> Como en Java, donde clases como BufferedInputStream decoran FileInputStream para añadir buffering.</li>
+        <li><strong>Frameworks web:</strong> Middleware en Express.js o decoradores en NestJS que añaden comportamientos como autenticación o compresión a los endpoints.</li>
+        <li><strong>Interfaces gráficas:</strong> Decoradores que añaden bordes, scrollbars o comportamientos a componentes visuales.</li>
+        <li><strong>Procesamiento de texto:</strong> Añadir formato (negrita, cursiva, subrayado) a texto sin modificar el contenido original.</li>
+        <li><strong>Caché y memoización:</strong> Decoradores que añaden caché a funciones costosas sin modificar la implementación original.</li>
+        <li><strong>Sistemas de logging:</strong> Decoradores que añaden registro de llamadas a métodos de forma transparente.</li>
+      </ul>
+      
+      <h3>Decorator vs Adapter vs Proxy</h3>
+      <ul>
+        <li><strong>Decorator:</strong> Añade responsabilidades adicionales a un objeto sin cambiar su interfaz, permitiendo comportamientos apilables.</li>
+        <li><strong>Adapter:</strong> Cambia la interfaz de un objeto existente para hacerla compatible con lo que espera el cliente, facilitando la comunicación entre componentes incompatibles.</li>
+        <li><strong>Proxy:</strong> Proporciona un sustituto para controlar el acceso a otro objeto, mientras que Decorator añade responsabilidades sin controlar el acceso.</li>
+      </ul>
+    `
   },
   
   notes: 'El patrón Decorator es ampliamente utilizado en muchas bibliotecas y frameworks, como los streams de I/O en Java (java.io) y los streams de C++ (iostream). En C++ moderno, se puede implementar de manera más segura y eficiente usando punteros inteligentes y programación funcional. En Java, con características introducidas en Java 8 como lambdas y la API Stream, este patrón puede implementarse de forma más concisa y funcional.'

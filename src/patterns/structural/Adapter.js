@@ -5,7 +5,7 @@ export const adapterPattern = {
   id: 'adapter',
   category: 'structural',
   name: 'Adapter',
-  description: 'Permite que interfaces incompatibles trabajen juntas convirtiendo la interfaz de una clase en otra interfaz que los clientes esperan.',
+  description: 'Convierte la interfaz de una clase en otra interfaz que los clientes esperan. El patrón Adapter permite que clases con interfaces incompatibles trabajen juntas, actuando como un puente entre ellas.',
   implementations: {
     cppTraditional: {
       code: `// La interfaz objetivo que el cliente espera usar
@@ -260,21 +260,64 @@ public class AdapterDemo {
     }
   },
   theory: {
-    background: "El patrón Adapter es un patrón estructural que permite la colaboración entre objetos con interfaces incompatibles. Es especialmente útil cuando se trabaja con bibliotecas de terceros o código heredado que no podemos modificar directamente.",
-    problem: "¿Cómo podemos hacer que una clase existente funcione con otros sin modificar su código fuente? Por ejemplo, cuando tenemos una aplicación que espera cierta interfaz, pero necesitamos usar una clase o biblioteca que tiene una interfaz diferente.",
-    solution: "El patrón Adapter resuelve este problema al crear una clase intermedia (el Adaptador) que convierte la interfaz de una clase existente en la interfaz que el cliente espera.",
+    background: 'El patrón Adapter fue documentado por la Banda de los Cuatro (GoF) y su concepto proviene de la vida cotidiana, donde utilizamos adaptadores para conectar dispositivos con interfaces incompatibles, como un adaptador eléctrico para diferentes tipos de enchufes. En software, resuelve problemas similares cuando necesitamos integrar componentes con interfaces distintas.',
+    
+    problem: 'Cuando queremos utilizar una clase existente, pero su interfaz no coincide con la que necesitamos, nos enfrentamos a un problema de incompatibilidad. Por ejemplo, cuando integramos bibliotecas de terceros, marcos de trabajo heredados o componentes con diferentes estándares. Reescribir estas clases no es práctico y a menudo imposible si no tenemos acceso al código fuente.',
+    
+    solution: 'El patrón Adapter resuelve esto creando una clase intermedia (el adaptador) que traduce las llamadas de una interfaz a otra. El adaptador implementa la interfaz que el cliente espera y mantiene una referencia al objeto adaptado, delegando en él las operaciones pero con la interfaz transformada.',
+    
     applicability: [
-      "Cuando quieres usar una clase existente pero su interfaz no coincide con la que necesitas",
-      "Cuando necesitas reutilizar varias subclases existentes pero no quieres añadir código duplicado",
-      "Cuando quieres crear una clase reutilizable que coopere con clases que tienen interfaces incompatibles"
+      'Cuando quieres usar una clase existente, pero su interfaz no coincide con la que necesitas',
+      'Cuando necesitas integrar clases que no fueron diseñadas para trabajar juntas, especialmente de terceros o sistemas heredados',
+      'Para reutilizar código existente en un nuevo sistema con interfaces diferentes',
+      'Para crear una clase reutilizable que coopere con clases de interfaces no relacionadas o desconocidas',
+      'Para convertir datos entre diferentes formatos o estándares'
     ],
+    
     consequences: [
-      "Permite que clases con interfaces incompatibles trabajen juntas",
-      "Promueve la reutilización de código existente",
-      "Aumenta la flexibilidad del código",
-      "Puede añadir una pequeña sobrecarga por la indirección adicional",
-      "En C++ tradicional, hay que ser cuidadoso con la gestión de memoria"
-    ]
+      'Permite que clases con interfaces incompatibles trabajen juntas',
+      'Promueve la reutilización de clases existentes, incluso cuando no fueron diseñadas inicialmente para el nuevo sistema',
+      'Introduce una capa adicional de indirección que puede afectar al rendimiento',
+      'Puede aumentar la complejidad del código si requiere mantener y entender múltiples adaptadores',
+      'Facilita la migración gradual de sistemas heredados a nuevas arquitecturas'
+    ],
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Adapter?</h3>
+      <ul>
+        <li><strong>Integración de sistemas:</strong> Cuando necesitas integrar componentes nuevos con sistemas existentes que tienen interfaces incompatibles.</li>
+        <li><strong>Uso de bibliotecas externas:</strong> Cuando incorporas una biblioteca de terceros cuya interfaz no encaja con el diseño de tu aplicación.</li>
+        <li><strong>Migración de sistemas:</strong> Durante migraciones por fases, donde el sistema antiguo y el nuevo deben coexistir temporalmente.</li>
+        <li><strong>APIs incompatibles:</strong> Cuando trabajas con múltiples APIs que realizan funciones similares pero con interfaces diferentes.</li>
+        <li><strong>Cambios de requisitos:</strong> Cuando la interfaz existente no puede modificarse, pero debe adaptarse a nuevos requisitos.</li>
+      </ul>
+      
+      <h3>Tipos de Adaptadores:</h3>
+      <ul>
+        <li><strong>Adaptador de clase (usando herencia):</strong> Hereda de la clase objetivo e implementa la interfaz que se espera. Solo es posible en lenguajes con herencia múltiple.</li>
+        <li><strong>Adaptador de objeto (usando composición):</strong> Implementa la interfaz esperada y mantiene una referencia al objeto adaptado. Más flexible y preferible en la mayoría de los casos.</li>
+        <li><strong>Adaptador bidireccional:</strong> Permite la comunicación en ambas direcciones, adaptando cada interfaz a la otra según sea necesario.</li>
+        <li><strong>Adaptador con funcionalidad extendida:</strong> No solo adapta, sino que añade funcionalidad adicional al componente adaptado.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Adaptadores de datos:</strong> Convertir entre formatos XML, JSON, CSV u otros formatos de intercambio de datos.</li>
+        <li><strong>Adaptadores de persistencia:</strong> Conectar distintos ORM o sistemas de base de datos a una aplicación con una interfaz de repositorio unificada.</li>
+        <li><strong>Frameworks gráficos:</strong> Adaptar diferentes bibliotecas de renderizado a una interfaz común en motores de juegos o aplicaciones gráficas.</li>
+        <li><strong>Adaptadores de redes sociales:</strong> Proporcionar una interfaz unificada para interactuar con diferentes APIs de redes sociales (Twitter, Facebook, etc.).</li>
+        <li><strong>Adaptadores de pago:</strong> Crear una interfaz común para diferentes pasarelas de pago (PayPal, Stripe, etc.).</li>
+        <li><strong>Wrappers de APIs antiguas:</strong> Modernizar interfaces de APIs obsoletas sin reescribir el código cliente.</li>
+      </ul>
+      
+      <h3>Adapter vs Bridge vs Facade vs Proxy</h3>
+      <ul>
+        <li><strong>Adapter:</strong> Hace que interfaces incompatibles trabajen juntas. Se aplica después del diseño del sistema.</li>
+        <li><strong>Bridge:</strong> Separa una abstracción de su implementación para que ambas puedan variar independientemente. Se diseña desde el principio.</li>
+        <li><strong>Facade:</strong> Proporciona una interfaz unificada y simplificada a un conjunto de interfaces en un subsistema. Simplifica, no adapta.</li>
+        <li><strong>Proxy:</strong> Proporciona un sustituto o representante de otro objeto para controlar el acceso a éste. Misma interfaz, control de acceso.</li>
+      </ul>
+    `
   },
   comparisons: [
     {

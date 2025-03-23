@@ -2,7 +2,7 @@ const templateMethodPattern = {
   id: 'template-method',
   name: 'Template Method',
   category: 'behavioral',
-  description: 'El patrón Template Method define el esqueleto de un algoritmo en una operación, posponiendo algunos pasos a las subclases. Permite que las subclases redefinan ciertos pasos de un algoritmo sin cambiar la estructura del mismo.',
+  description: 'El patrón Template Method define el esqueleto de un algoritmo en una operación, posponiendo algunos pasos a las subclases. Permite que las subclases redefinan ciertos pasos de un algoritmo sin cambiar la estructura del mismo. Este patrón promueve la reutilización de código y garantiza que las partes invariantes de un algoritmo permanezcan constantes mientras las partes variables pueden ser personalizadas.',
   
   implementations: {
     cppTraditional: {
@@ -523,30 +523,162 @@ public class TemplateMethodDemo {
   ],
   
   theory: {
-    background: 'El patrón Template Method fue introducido como parte de los 23 patrones de diseño del Gang of Four (GoF). Este patrón es fundamental en diseño orientado a objetos y aprovecha la herencia para distribuir algoritmos entre clases.',
-    problem: 'Cuando varias clases contienen algoritmos similares con algunas diferencias en ciertos pasos, hay duplicación de código. Los cambios en la estructura común del algoritmo requieren modificaciones en múltiples clases, lo que es propenso a errores y difícil de mantener.',
-    solution: 'El patrón Template Method define un esqueleto de algoritmo en un método en la clase base, delegando algunos pasos a las subclases. El template method protege la estructura global del algoritmo mientras permite a las subclases sobrescribir pasos específicos sin cambiar su estructura.',
+    background: 'El patrón Template Method fue introducido como parte de los 23 patrones de diseño del Gang of Four (GoF). Este patrón es fundamental en diseño orientado a objetos y aprovecha la herencia para distribuir algoritmos entre clases. El Template Method demuestra uno de los principios clave de la programación orientada a objetos: "invocación polimórfica", donde los métodos de la clase base invocan operaciones que pueden ser redefinidas por las subclases. Este patrón es ampliamente utilizado en frameworks donde los desarrolladores necesitan personalizar partes específicas de un proceso predefinido.',
+    
+    problem: 'Cuando varias clases contienen algoritmos similares con algunas diferencias en ciertos pasos, hay duplicación de código. Los cambios en la estructura común del algoritmo requieren modificaciones en múltiples clases, lo que es propenso a errores y difícil de mantener. Además, es complicado garantizar que todos los algoritmos mantengan la misma secuencia de pasos y restricciones, especialmente cuando nuevos desarrolladores implementan nuevas variantes sin comprender completamente el diseño original. Este problema se agrava cuando aumenta el número de variantes del algoritmo o cuando la complejidad del algoritmo crece con el tiempo.',
+    
+    solution: 'El patrón Template Method define un esqueleto de algoritmo en un método en la clase base, delegando algunos pasos a las subclases. El template method protege la estructura global del algoritmo mientras permite a las subclases sobrescribir pasos específicos sin cambiar su estructura. La solución típicamente incluye una clase abstracta con: (1) un método plantilla "final" que define la estructura del algoritmo, (2) métodos abstractos que las subclases deben implementar, (3) métodos concretos que proporcionan funcionalidad común, y (4) "ganchos" opcionales con implementaciones por defecto que las subclases pueden sobrescribir. Este enfoque garantiza que el algoritmo siempre siga la misma secuencia de pasos, pero permite variaciones en pasos específicos.',
+    
     applicability: [
       'Cuando se quiere permitir a los clientes extender solo pasos particulares de un algoritmo, pero no toda la estructura.',
       'Cuando se tiene un código común entre varias clases que solo difiere en algunos aspectos específicos.',
       'Cuando se quiere controlar en qué puntos las subclases pueden variar el comportamiento de un algoritmo.',
       'Para implementar el principio "Hollywood" (no nos llames, nosotros te llamaremos): la clase base llama a los métodos de las subclases en momentos específicos.',
-      'Para evitar duplicación de código en clases con algoritmos similares.'
+      'Para evitar duplicación de código en clases con algoritmos similares.',
+      'Cuando el comportamiento de un algoritmo puede variar, pero su estructura general permanece constante.',
+      'Para implementar esqueletos de procesamiento como parsers, constructores, o secuencias de validación.',
+      'En el desarrollo de frameworks donde se define la estructura general pero se permite personalización en partes específicas.',
+      'Cuando se necesita garantizar que ciertas operaciones ocurran en un orden específico, independientemente de la implementación concreta.',
+      'Para proporcionar una implementación "razonable por defecto" de un algoritmo que las subclases pueden extender cuando sea necesario.'
     ],
+    
     benefits: [
       'Reutilización de código: las partes invariantes del algoritmo se implementan una vez en la clase abstracta.',
       'Extensibilidad controlada: las subclases pueden personalizar el comportamiento en puntos específicos sin alterar la estructura general.',
       'Inversión de control: la clase base controla el flujo del algoritmo y llama a los métodos específicos de las subclases.',
       'Facilita la aplicación del principio Open/Closed: la estructura está cerrada a modificaciones pero abierta a extensiones.',
-      'Proporciona ganchos (hooks) que permiten extensión opcional sin forzar la sobrescritura.'
+      'Proporciona ganchos (hooks) que permiten extensión opcional sin forzar la sobrescritura.',
+      'Reduce la duplicación de código al centralizar la estructura común en la clase base.',
+      'Mejora la mantenibilidad al localizar cambios estructurales en un solo lugar.',
+      'Promueve la consistencia al garantizar que todos los algoritmos derivados sigan la misma estructura básica.',
+      'Facilita la implementación de nuevas variantes al proporcionar una estructura clara a seguir.',
+      'Permite agregar nuevos pasos o comportamiento común sin afectar a las implementaciones existentes.'
     ],
+    
     drawbacks: [
       'Las limitaciones impuestas por la estructura fija pueden resultar restrictivas para ciertos casos de uso.',
       'La depuración puede ser más difícil debido a la inversión de control y la separación de los pasos del algoritmo.',
       'Los cambios en la estructura del template method pueden requerir modificaciones en numerosas subclases.',
       'Puede llevar a una jerarquía de clases compleja si se requieren múltiples variaciones del algoritmo.',
-      'El uso excesivo de ganchos puede hacer que el código sea más difícil de entender y mantener.'
-    ]
+      'El uso excesivo de ganchos puede hacer que el código sea más difícil de entender y mantener.',
+      'Viola el principio de "composición sobre herencia" al depender fundamentalmente de la herencia.',
+      'Puede llevar a clases base frágiles si los cambios en la estructura del algoritmo son frecuentes.',
+      'Las subclases están limitadas por el diseño de la clase padre, lo que puede restringir la innovación.',
+      'Puede ser difícil determinar qué métodos son "ganchos" opcionales versus operaciones obligatorias sin documentación clara.',
+      'El flujo de control puede ser difícil de seguir cuando se distribuye entre múltiples clases y métodos.'
+    ],
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Template Method?</h3>
+      <ul>
+        <li><strong>Frameworks:</strong> Cuando estás construyendo un framework donde quieres definir la estructura general de un proceso pero permitir a los usuarios personalizarlo. Por ejemplo, frameworks web como Spring MVC o ASP.NET utilizan Template Method para definir el ciclo de vida de las solicitudes HTTP.</li>
+        <li><strong>Operaciones con pasos fijos:</strong> Cuando tienes operaciones con pasos bien definidos que deben ejecutarse en un orden específico, pero con variaciones en la implementación de cada paso. Por ejemplo, el procesamiento de documentos o el análisis de datos.</li>
+        <li><strong>Estandarización de algoritmos:</strong> Cuando necesitas garantizar que diferentes implementaciones de un algoritmo sigan la misma estructura y reglas. Por ejemplo, en sistemas de validación o procesamiento de transacciones.</li>
+        <li><strong>Reducción de duplicación:</strong> Cuando observas código similar con pequeñas variaciones en múltiples clases, lo que sugiere una estructura común que podría extraerse a un template method.</li>
+        <li><strong>Control centralizado:</strong> Cuando necesitas un control centralizado sobre el flujo de un algoritmo mientras permites variaciones en pasos específicos. Por ejemplo, en sistemas de procesamiento por lotes o pipelines de datos.</li>
+        <li><strong>Implementación de API:</strong> Para proporcionar implementaciones por defecto de métodos complejos de una API, permitiendo a los clientes sobrescribir solo las partes que necesitan personalizar.</li>
+      </ul>
+      
+      <h3>Variantes y extensiones del patrón Template Method:</h3>
+      <ul>
+        <li><strong>Template Method con estrategia:</strong> Combina Template Method con el patrón Strategy para permitir intercambiar comportamientos específicos en tiempo de ejecución sin cambiar la estructura del algoritmo.</li>
+        <li><strong>Template Method con Factory Method:</strong> Utiliza Factory Methods dentro del template method para permitir que las subclases personalicen los objetos creados durante el algoritmo.</li>
+        <li><strong>Template Method con callbacks:</strong> En lenguajes que admiten funciones de orden superior, se pueden pasar callbacks en lugar de utilizar herencia para personalizar pasos específicos.</li>
+        <li><strong>Template Method con Composite:</strong> Donde los pasos del algoritmo pueden ser estructuras compuestas anidadas, permitiendo algoritmos más complejos con subestructuras variables.</li>
+        <li><strong>Template Method con configuración:</strong> Utiliza objetos de configuración o propiedades para modificar el comportamiento del template method sin necesidad de subclasificación.</li>
+        <li><strong>Template Method con IoC:</strong> Implementa el patrón utilizando contenedores de Inversión de Control para inyectar las implementaciones específicas de los pasos.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Frameworks web:</strong> La mayoría de los frameworks web utilizan Template Method para definir el ciclo de vida de una solicitud HTTP, como en el siguiente pseudocódigo:
+        <pre>
+// Clase base en un framework web
+abstract class BaseController {
+  // Template method que define el proceso de manejo de solicitudes
+  public final void processRequest(Request request, Response response) {
+    // Pasos comunes
+    authenticateRequest(request);
+    validateRequest(request);
+    
+    // Paso abstracto que implementan las subclases
+    handleRequest(request, response);
+    
+    // Pasos comunes finales
+    renderResponse(response);
+    logRequest(request, response);
+  }
+  
+  // Métodos con implementación por defecto
+  protected void authenticateRequest(Request request) {
+    // Implementación estándar de autenticación
+  }
+  
+  protected void validateRequest(Request request) {
+    // Validación básica de solicitud
+  }
+  
+  // Método hook con implementación vacía por defecto
+  protected void renderResponse(Response response) {
+    // Por defecto no hace nada adicional
+  }
+  
+  // Métodos abstractos que las subclases deben implementar
+  protected abstract void handleRequest(Request request, Response response);
+  
+  // Método concreto final que no puede ser sobrescrito
+  private final void logRequest(Request request, Response response) {
+    // Registro estándar de solicitudes
+  }
+}
+
+// Controlador concreto
+class ProductController extends BaseController {
+  @Override
+  protected void handleRequest(Request request, Response response) {
+    // Lógica específica para manejar productos
+  }
+  
+  @Override
+  protected void renderResponse(Response response) {
+    // Renderizado personalizado para productos
+    response.addHeader("Content-Type", "application/json");
+  }
+}
+        </pre>
+        </li>
+        <li><strong>Bibliotecas de testing:</strong> Frameworks como JUnit utilizan Template Method para definir la estructura de un caso de prueba (setUp, test, tearDown), permitiendo a los desarrolladores implementar solo las partes necesarias.</li>
+        <li><strong>Procesamiento de datos:</strong> Sistemas ETL (Extract, Transform, Load) donde la secuencia de extracción, transformación y carga es fija, pero cada paso puede personalizarse para diferentes fuentes de datos o destinos.</li>
+        <li><strong>Compiladores y procesadores de lenguaje:</strong> Los compiladores suelen utilizar Template Method para definir las fases de compilación (análisis léxico, sintáctico, generación de código), permitiendo personalizar cada fase para diferentes lenguajes.</li>
+        <li><strong>Interfaces de usuario:</strong> Los frameworks de UI como Swing o Android utilizan Template Method para definir el ciclo de vida de los componentes, permitiendo a los desarrolladores personalizar solo los aspectos relevantes de la interfaz.</li>
+        <li><strong>Generadores de informes:</strong> Sistemas que generan informes con una estructura consistente pero contenido variable, como se muestra en el ejemplo de Java con ReportGenerator.</li>
+        <li><strong>Procesadores de documentos:</strong> Sistemas que procesan diferentes tipos de documentos siguiendo un flujo de trabajo común pero con operaciones específicas para cada formato.</li>
+      </ul>
+      
+      <h3>Implementación efectiva del patrón Template Method:</h3>
+      <ul>
+        <li><strong>Identifica claramente lo variable y lo invariable:</strong> Analiza cuidadosamente qué partes del algoritmo deben permanecer fijas y cuáles pueden variar entre implementaciones.</li>
+        <li><strong>Utiliza modificadores apropiados:</strong> Marca el template method como final (o su equivalente en tu lenguaje) para evitar que las subclases alteren la estructura del algoritmo.</li>
+        <li><strong>Documenta los ganchos y las operaciones abstractas:</strong> Proporciona documentación clara sobre qué métodos deben implementarse y cuáles son opcionales.</li>
+        <li><strong>Minimiza el conocimiento requerido:</strong> Las subclases deberían necesitar entender solo los métodos que deben implementar, no toda la estructura del algoritmo.</li>
+        <li><strong>Considera el principio de segregación de interfaces:</strong> Si una clase necesita implementar múltiples template methods, considera separarlo en interfaces o clases base más pequeñas.</li>
+        <li><strong>Balance entre flexibilidad y complejidad:</strong> Demasiados puntos de extensión pueden hacer que el código sea difícil de entender y mantener.</li>
+        <li><strong>Utiliza nombres descriptivos:</strong> Los nombres de los métodos deberían indicar claramente su propósito y si son obligatorios o ganchos opcionales.</li>
+        <li><strong>Implementaciones por defecto razonables:</strong> Proporciona implementaciones por defecto útiles para los ganchos cuando sea posible.</li>
+        <li><strong>Considera alternativas:</strong> En algunos casos, patrones como Strategy o Decorator pueden proporcionar más flexibilidad que Template Method.</li>
+        <li><strong>Prueba las implementaciones base:</strong> Asegúrate de que la clase base funcione correctamente con implementaciones de prueba antes de entregarla a los usuarios.</li>
+      </ul>
+      
+      <h3>Template Method vs Strategy vs Command vs State:</h3>
+      <ul>
+        <li><strong>Template Method:</strong> Define el esqueleto de un algoritmo en la superclase pero permite que las subclases redefinan ciertos pasos. Se basa en la herencia para variar partes de un algoritmo. El flujo de control está predefinido en la clase base.</li>
+        <li><strong>Strategy:</strong> Define una familia de algoritmos intercambiables. A diferencia de Template Method que usa herencia, Strategy utiliza composición para variar el algoritmo completo. Mientras Template Method varía partes de un algoritmo, Strategy permite cambiar todo el algoritmo.</li>
+        <li><strong>Command:</strong> Encapsula una solicitud como un objeto, permitiendo parametrizar clientes con diferentes solicitudes. Mientras Template Method se centra en definir la estructura de un algoritmo, Command se centra en encapsular una operación completa.</li>
+        <li><strong>State:</strong> Permite que un objeto altere su comportamiento cuando su estado interno cambia. Mientras Template Method varía partes de un algoritmo a través de herencia, State varía todo el comportamiento basándose en el estado actual a través de composición.</li>
+        <li><strong>Chain of Responsibility:</strong> Pasa una solicitud a lo largo de una cadena de manejadores. Difiere de Template Method en que no hay una secuencia predefinida; cada manejador decide si procesa la solicitud o la pasa al siguiente.</li>
+        <li><strong>Decorator:</strong> Añade responsabilidades a objetos dinámicamente. Mientras Template Method utiliza herencia para extender comportamiento, Decorator utiliza composición para envolver objetos con nuevas funcionalidades.</li>
+      </ul>
+    `
   }
 };
 

@@ -2,7 +2,7 @@ const prototypePattern = {
   id: 'prototype',
   name: 'Prototype',
   category: 'creational',
-  description: 'El patrón Prototype permite crear nuevos objetos duplicando un objeto existente, conocido como prototipo, en lugar de crear nuevos objetos desde cero. Esto es útil cuando la creación de objetos es costosa o compleja.',
+  description: 'Especifica los tipos de objetos a crear usando una instancia prototípica, y crea nuevos objetos copiando este prototipo. Permite crear nuevos objetos duplicando objetos existentes, evitando la dependencia de sus clases concretas.',
   
   implementations: {
     cppTraditional: {
@@ -472,33 +472,92 @@ public class PrototypeDemo {
       cppTraditional: 'Sintaxis más verbosa con manejo explícito de punteros. Requiere más código para registro y gestión de prototipos.',
       cppModern: 'Sintaxis más limpia con templates y perfect forwarding. Proporciona métodos helper para facilitar el registro de prototipos.',
       java: 'Sintaxis concisa gracias a la interfaz Cloneable. Manejo de excepciones integrado para la clonación. No hay necesidad de preocuparse por la gestión de memoria.'
+    },
+    {
+      title: 'Rendimiento de clonación',
+      cppTraditional: 'Control total sobre el proceso de clonación, pero requiere implementación manual de copia profunda cuando sea necesario.',
+      cppModern: 'Similar al tradicional pero con menor riesgo de fugas de memoria. Las técnicas move semantics pueden mejorar el rendimiento.',
+      java: 'La clonación superficial es rápida, pero la implementación manual de clonación profunda puede ser más compleja y costosa.'
+    },
+    {
+      title: 'Flexibilidad en tiempo de ejecución',
+      cppTraditional: 'Permite añadir y modificar prototipos en tiempo de ejecución, pero con mayor complejidad de gestión.',
+      cppModern: 'Mayor flexibilidad con menor código, gracias a las funciones de orden superior y lambdas para manipular prototipos.',
+      java: 'Soporte nativo para reflexión facilita la manipulación dinámica de prototipos, especialmente útil en frameworks.'
     }
   ],
   
   theory: {
-    background: 'El patrón Prototype fue introducido por el Gang of Four (GoF) y está inspirado en los procesos biológicos de reproducción celular, donde una célula (prototipo) se clona para crear una nueva célula. En programación, Prototype permite crear nuevos objetos clonando un objeto existente, evitando la creación desde cero.',
-    problem: 'La creación de objetos puede ser costosa o compleja, especialmente cuando el objeto tiene muchas propiedades o requiere configuraciones complejas. Además, a veces necesitamos crear objetos similares a uno existente, pero con algunas variaciones, lo que hace ineficiente crear cada uno desde cero.',
-    solution: 'El patrón Prototype define una interfaz para crear objetos clonándose a sí mismos. Las clases concretas implementan esta interfaz para proporcionar la funcionalidad de clonación específica. Los clientes pueden crear nuevos objetos pidiendo a un prototipo que se clone, en lugar de crear objetos directamente.',
+    background: 'El patrón Prototype fue formalizado por la Banda de los Cuatro (GoF) y se inspira en procesos biológicos de reproducción celular. En la naturaleza, las células se duplican para crecer y reparar tejidos. De manera similar, este patrón permite que los objetos se dupliquen a sí mismos sin acoplar el código a sus clases específicas.',
+    
+    problem: 'A veces necesitamos crear objetos que son similares a objetos existentes, o queremos crear objetos cuando sólo tenemos ejemplos en tiempo de ejecución. Además, la creación directa de objetos puede ser costosa o compleja cuando implica operaciones intensivas, acceso a bases de datos o comunicación en red. La dependencia de clases concretas para crear objetos también limita la flexibilidad del diseño.',
+    
+    solution: 'El patrón Prototype define una interfaz para crear un clon de un objeto existente. En lugar de crear objetos desde cero, clonamos una instancia ya configurada. Esto suele implementarse declarando una interfaz abstracta con un método de clonación, que las clases concretas implementan para duplicarse a sí mismas.',
+    
     applicability: [
-      'Cuando las clases a instanciar son especificadas en tiempo de ejecución, por ejemplo, mediante carga dinámica.',
-      'Para evitar construir una jerarquía de fábricas paralela a la jerarquía de productos.',
-      'Cuando las instancias de una clase pueden tener uno de unos pocos estados diferentes, es más conveniente instalar un número correspondiente de prototipos y clonarlos.',
-      'Cuando la creación de objetos es costosa comparada con la clonación.',
-      'Para ocultar la complejidad de crear objetos complejos al cliente.'
+      'Cuando las clases a instanciar son especificadas en tiempo de ejecución (dinámicamente)',
+      'Para evitar construir una jerarquía de fábricas paralela a la jerarquía de productos',
+      'Cuando las instancias de una clase pueden tener uno de entre pocos estados diferentes',
+      'Cuando la creación de objetos es costosa en comparación con la clonación',
+      'Para ocultar la complejidad de crear objetos complejos al cliente',
+      'Para mantener un registro de objetos que pueden crearse mediante composición'
     ],
-    benefits: [
-      'Reduce la necesidad de subclases en la creación de objetos.',
-      'Oculta las complejidades de crear objetos complejos al cliente.',
-      'Permite añadir o eliminar productos en tiempo de ejecución.',
-      'Proporciona una alternativa a la herencia al obtener nuevos objetos con diferentes valores.',
-      'Reduce la repetición de código de inicialización cuando creamos objetos similares.'
+    
+    consequences: [
+      'Oculta las clases concretas al cliente, reduciendo el conocimiento requerido para el sistema',
+      'Permite agregar y eliminar productos en tiempo de ejecución',
+      'Especifica nuevos objetos variando sus valores o estructura, no solo parámetros fijos',
+      'Reduce la necesidad de subclases',
+      'Permite configurar una aplicación con clases dinámicamente',
+      'Puede introducir complejidad para implementar el mecanismo de clonación, especialmente con objetos que no soportan copia o tienen referencias circulares'
     ],
-    drawbacks: [
-      'La clonación puede ser compleja para objetos con referencias circulares o que no admiten clonación nativa.',
-      'Cada clase que implementa el prototipo debe proporcionar su propia implementación de clone().',
-      'La clonación superficial puede no ser suficiente para objetos con estructuras complejas, requiriendo implementaciones de clonación profunda.',
-      'La implementación de la clonación puede ser difícil si las clases existentes ya tienen una jerarquía establecida.'
-    ]
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Prototype?</h3>
+      <ul>
+        <li><strong>Objetos con configuración costosa:</strong> Cuando crear un objeto desde cero es costoso (accesos a BD, operaciones de red, cálculos intensivos).</li>
+        <li><strong>Minimizar la creación de subclases:</strong> Cuando un sistema debería ser independiente de cómo se crean, componen y representan sus productos.</li>
+        <li><strong>Configuraciones dinámicas:</strong> Cuando necesitas instanciar clases en tiempo de ejecución, por ejemplo, a través de la reflexión.</li>
+        <li><strong>Evitar reinicialización repetitiva:</strong> Cuando los objetos se inicializan con valores por defecto que son costosos de obtener.</li>
+        <li><strong>Composición sobre herencia:</strong> Cuando es preferible copiar un objeto existente en lugar de extender mediante herencia.</li>
+        <li><strong>Precargar configuraciones:</strong> Cuando tienes objetos predefinidos que se modifican ligeramente para nuevas instancias.</li>
+        <li><strong>Reducción de memoria:</strong> Cuando muchos objetos deben compartir cierta configuración pero variar en algunos atributos (relacionado con Flyweight).</li>
+      </ul>
+      
+      <h3>Variantes del patrón Prototype:</h3>
+      <ul>
+        <li><strong>Prototype con un registro:</strong> Mantiene un registro de prototipos disponibles por nombre o tipo, permitiendo búsquedas y clonaciones dinámicas.</li>
+        <li><strong>Prototype con copia profunda vs. superficial:</strong> Dependiendo de la complejidad del objeto, puede requerirse una copia profunda que duplique también sus objetos referenciados.</li>
+        <li><strong>Prototype con serialización:</strong> Usa serialización y deserialización para realizar copias profundas automáticamente.</li>
+        <li><strong>Clone Manager:</strong> Un objeto separado que maneja la complejidad de la clonación, especialmente útil con objetos complejos.</li>
+        <li><strong>Prototype Factory:</strong> Combina Prototype con Factory Method para gestionar la creación y clonación de objetos.</li>
+        <li><strong>Prototype parametrizado:</strong> Donde la clonación incluye modificaciones basadas en parámetros proporcionados.</li>
+        <li><strong>Virtual Constructor:</strong> Un mecanismo donde un objeto puede crearse especificando su clase en tiempo de ejecución y luego clonarse.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Aplicaciones gráficas:</strong> Copiar objetos gráficos como formas o capas en herramientas de diseño (Photoshop, Illustrator).</li>
+        <li><strong>Navegadores web:</strong> La función de clonar pestañas duplica toda la configuración y estado de la pestaña original.</li>
+        <li><strong>Juegos:</strong> Crear múltiples instancias de enemigos, obstáculos o efectos visuales basados en plantillas.</li>
+        <li><strong>Objetos de configuración:</strong> Crear variantes de una configuración base modificando solo algunos parámetros.</li>
+        <li><strong>Cachés de objetos:</strong> Mantener versiones prototípicas de objetos complejos que se clonan cuando se necesitan.</li>
+        <li><strong>Frameworks de pruebas:</strong> Crear objetos de prueba con ciertas características predefinidas.</li>
+        <li><strong>Editores de documentos:</strong> Duplicar elementos como secciones, páginas o componentes con sus propiedades.</li>
+        <li><strong>Herramientas de modelado 3D:</strong> Duplicar objetos 3D y sus propiedades sin recrearlos desde cero.</li>
+        <li><strong>IDEs:</strong> Duplicar fragmentos de código o archivos con sus configuraciones.</li>
+        <li><strong>CMS:</strong> Clonar páginas o contenido completo en sistemas de gestión de contenido.</li>
+      </ul>
+      
+      <h3>Prototype vs otros patrones creacionales</h3>
+      <ul>
+        <li><strong>Prototype vs Factory Method:</strong> Prototype crea nuevos objetos copiando un objeto existente, mientras Factory Method utiliza herencia y depende de una subclase para especificar el objeto a crear. Prototype es más flexible en tiempo de ejecución.</li>
+        <li><strong>Prototype vs Builder:</strong> Builder construye objetos complejos paso a paso con múltiples métodos, mientras Prototype crea objetos copiando un prototipo completamente configurado. Builder se enfoca en el proceso de construcción, Prototype en la clonación.</li>
+        <li><strong>Prototype vs Abstract Factory:</strong> Abstract Factory crea familias de objetos relacionados sin especificar sus clases concretas. Prototype se enfoca en clonar objetos existentes. Abstract Factory suele ser más rígido en su estructura.</li>
+        <li><strong>Prototype vs Singleton:</strong> Singleton garantiza una única instancia, mientras Prototype se enfoca en crear múltiples instancias basadas en un original. Son casi opuestos en su objetivo: restricción vs. replicación.</li>
+        <li><strong>Prototype vs Memento:</strong> Ambos tratan con copias de estado, pero Memento guarda el estado para restaurar el objeto original posteriormente, mientras Prototype crea nuevos objetos independientes.</li>
+      </ul>
+    `
   }
 };
 

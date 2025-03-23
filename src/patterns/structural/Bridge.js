@@ -2,7 +2,7 @@ const bridgePattern = {
   id: 'bridge',
   name: 'Bridge',
   category: 'structural',
-  description: 'El patrón Bridge separa una abstracción de su implementación para que ambas puedan variar independientemente. Permite dividir una clase grande o un conjunto de clases estrechamente relacionadas en dos jerarquías separadas—abstracción e implementación—que pueden desarrollarse independientemente.',
+  description: 'Separa una abstracción de su implementación para que ambas puedan variar independientemente. Este patrón desacopla una interfaz de su implementación, permitiendo que evolucionen separadamente y favoreciendo la flexibilidad y extensibilidad del sistema.',
   
   implementations: {
     cppTraditional: {
@@ -659,30 +659,65 @@ public class BridgeDemo {
   ],
   
   theory: {
-    background: 'El patrón Bridge es uno de los 23 patrones de diseño del Gang of Four (GoF). Tiene sus raíces en el principio "preferir composición sobre herencia" y en la idea de separar interfaz de implementación.',
-    problem: 'Cuando una clase tiene múltiples dimensiones de variación, la herencia puede llevar a una explosión de subclases. Por ejemplo, si tenemos N formas y M plataformas, necesitaríamos N×M clases diferentes usando herencia tradicional. Además, añadir una nueva dimensión requiere modificar toda la jerarquía de clases.',
-    solution: 'El patrón Bridge divide la clase en dos jerarquías separadas: la abstracción (qué hace el objeto) y la implementación (cómo lo hace). La abstracción contiene una referencia a la implementación, permitiendo que ambas varíen independientemente. Esto permite combinar N abstracciones con M implementaciones usando sólo N+M clases.',
+    background: 'El patrón Bridge fue formalizado por la Banda de los Cuatro (GoF) como una solución al problema de la herencia múltiple y las jerarquías de clases explosivas. Su fundamento es el principio "preferir la composición sobre la herencia", facilitando la separación de preocupaciones y la evolución independiente de diferentes aspectos del sistema.',
+    
+    problem: 'En diseño orientado a objetos, la herencia puede crear jerarquías de clases complejas cuando una clase varía en múltiples dimensiones independientes. Por ejemplo, si tenemos varios tipos de formas (círculos, cuadrados) y varias formas de renderizarlas (vector, raster), una solución basada solo en herencia crearía combinaciones explosivas (CirculoVector, CirculoRaster, CuadradoVector, CuadradoRaster, etc.). Esto genera código duplicado, dificulta la extensibilidad y complica el mantenimiento.',
+    
+    solution: 'El patrón Bridge resuelve este problema dividiendo el diseño en dos jerarquías: una para las abstracciones (lo que el cliente ve) y otra para las implementaciones (cómo se realiza el trabajo). La abstracción contiene una referencia a la implementación, creando un "puente" entre ambas. Esto permite que ambas jerarquías evolucionen independientemente sin afectarse mutuamente.',
+    
     applicability: [
-      'Cuando se desea evitar un vínculo permanente entre la abstracción y su implementación.',
-      'Cuando tanto la abstracción como la implementación deben ser extensibles mediante subclases.',
-      'Cuando los cambios en la implementación no deben afectar al código cliente.',
-      'Cuando se tiene una proliferación de clases debido a una jerarquía que combina múltiples dimensiones de variación.',
-      'Cuando se quiere compartir una implementación entre múltiples objetos.'
+      'Cuando deseas evitar un vínculo permanente entre una abstracción y su implementación',
+      'Cuando tanto la abstracción como la implementación deben ser extensibles mediante subclases',
+      'Cuando los cambios en la implementación no deben impactar en el código del cliente',
+      'Cuando tienes una proliferación explosiva de clases debido a la combinación de múltiples dimensiones de variación',
+      'Cuando quieres compartir una implementación entre múltiples objetos y ocultarlo del cliente'
     ],
-    benefits: [
-      'Desacopla la interfaz de la implementación, permitiendo que evolucionen por separado.',
-      'Mejora la extensibilidad: se pueden añadir nuevas abstracciones e implementaciones independientemente.',
-      'Oculta detalles de implementación al cliente, siguiendo el principio de encapsulación.',
-      'Reduce el número de clases necesarias en comparación con la herencia múltiple.',
-      'Facilita la creación de plataformas cruzadas y sistemas independientes del sistema operativo.'
+    
+    consequences: [
+      'Desacopla la interfaz de la implementación, permitiendo que ambas evolucionen independientemente',
+      'Mejora la extensibilidad al permitir extender abstracciones e implementaciones por separado',
+      'Oculta detalles de implementación de los clientes, cumpliendo con el principio de encapsulación',
+      'Fomenta la aplicación del principio Open/Closed, facilitando la adición de nuevas abstracciones e implementaciones',
+      'Introduce un nivel adicional de indirección que puede complicar la comprensión del código',
+      'Puede reducir el rendimiento debido a la indirección adicional en las llamadas'
     ],
-    drawbacks: [
-      'Aumenta la complejidad del código debido a la introducción de nuevas interfaces y clases.',
-      'Puede resultar excesivo para problemas simples donde la herencia directa sería más sencilla.',
-      'Requiere un diseño inicial cuidadoso para identificar correctamente las abstracciones e implementaciones.',
-      'Puede ser difícil de entender para desarrolladores no familiarizados con el patrón.',
-      'La indirección adicional puede tener un pequeño impacto en el rendimiento.'
-    ]
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Bridge?</h3>
+      <ul>
+        <li><strong>Variación en múltiples dimensiones:</strong> Cuando un componente varía en múltiples dimensiones independientes (por ejemplo, plataformas, bases de datos, renderers, algoritmos).</li>
+        <li><strong>Evitar explosión de clases:</strong> Para prevenir la creación de numerosas subclases que resultan de la combinación de diferentes variaciones.</li>
+        <li><strong>Intercambio de implementaciones:</strong> Cuando necesitas cambiar la implementación en tiempo de ejecución (por ejemplo, cambiar el motor de renderizado según las capacidades del dispositivo).</li>
+        <li><strong>Extensibilidad crítica:</strong> En sistemas donde tanto las abstracciones como las implementaciones deben ser altamente extensibles.</li>
+        <li><strong>Separar código específico de plataforma:</strong> Para aislar código dependiente de la plataforma del resto de la aplicación (como drivers, integraciones con APIs externas).</li>
+      </ul>
+      
+      <h3>Variantes del patrón Bridge:</h3>
+      <ul>
+        <li><strong>Bridge simple:</strong> La implementación clásica con una abstracción conectada a una implementación.</li>
+        <li><strong>Bridge con implementación múltiple:</strong> Donde la abstracción utiliza múltiples implementaciones para realizar tareas diferentes.</li>
+        <li><strong>Bridge con adaptador:</strong> Combinación de los patrones Bridge y Adapter, donde el adaptador conecta la abstracción con una implementación incompatible.</li>
+        <li><strong>Bridge con método plantilla:</strong> Donde la abstracción define un algoritmo y delega pasos específicos a la implementación.</li>
+        <li><strong>Bridge con inyección de dependencias:</strong> Utiliza inyección de dependencias para proporcionar implementaciones a las abstracciones.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Frameworks gráficos:</strong> Separar formas (círculo, rectángulo) de cómo se renderizan (vector, raster, 3D), como en Java AWT o Windows GDI.</li>
+        <li><strong>Controladores de dispositivos:</strong> Sistemas operativos que separan la API pública del driver de las implementaciones específicas de hardware.</li>
+        <li><strong>Frameworks multiplataforma:</strong> Aplicaciones como Electron, React Native o Flutter que separan la interfaz de usuario de las implementaciones específicas de cada plataforma.</li>
+        <li><strong>Acceso a bases de datos:</strong> ORMs que separan las operaciones de base de datos (crear, leer, actualizar, eliminar) de los drivers específicos de cada proveedor (MySQL, PostgreSQL, Oracle).</li>
+        <li><strong>Sistemas de persistencia:</strong> Separar las operaciones de persistencia (guardar, cargar) de los medios de almacenamiento (archivo, base de datos, nube).</li>
+        <li><strong>Servicios de notificación:</strong> Separar la lógica de notificación de los canales de entrega (email, SMS, push).</li>
+      </ul>
+      
+      <h3>Bridge vs Strategy vs Adapter</h3>
+      <ul>
+        <li><strong>Bridge:</strong> Separa una abstracción de su implementación para que ambas puedan variar independientemente.</li>
+        <li><strong>Strategy:</strong> Define una familia de algoritmos intercambiables, pero no necesariamente trata con abstracciones e implementaciones separadas.</li>
+        <li><strong>Adapter:</strong> Hace que interfaces incompatibles trabajen juntas, adaptando una interfaz existente, mientras que Bridge diseña la abstracción y la implementación para que funcionen juntas desde el principio.</li>
+      </ul>
+    `
   }
 };
 

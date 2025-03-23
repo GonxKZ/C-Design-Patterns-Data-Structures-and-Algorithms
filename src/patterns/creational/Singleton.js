@@ -2,7 +2,7 @@ const singletonPattern = {
   id: 'singleton',
   name: 'Singleton',
   category: 'creational',
-  description: 'El patrón Singleton garantiza que una clase tenga una única instancia y proporciona un punto de acceso global a ella.',
+  description: 'Garantiza que una clase tenga una única instancia y proporciona un punto de acceso global a ella, controlando su creación, mientras ofrece una forma consistente de acceder a la misma desde cualquier parte de la aplicación.',
   
   implementations: {
     cppTraditional: {
@@ -524,22 +524,70 @@ public class SingletonDemo {
   ],
   
   theory: {
-    background: 'El patrón Singleton es uno de los patrones de diseño más simples y conocidos. Forma parte de los patrones creacionales del Gang of Four (GoF) y se utiliza para restringir la instanciación de una clase a un único objeto.',
-    problem: 'A veces necesitamos asegurarnos de que una clase tenga una única instancia en todo el sistema. Por ejemplo, cuando una única clase debe coordinar acciones en todo el sistema, como un gestor de configuración, un pool de conexiones o un registro de eventos. Crear múltiples instancias podría causar problemas como conflictos de recursos o comportamiento inconsistente.',
-    solution: 'El patrón Singleton resuelve este problema haciendo que la clase sea responsable de su propia instancia única. Implementa esto ocultando el constructor y proporcionando un método estático que devuelve la única instancia, creándola si aún no existe.',
+    background: 'El patrón Singleton fue formalizado por la Banda de los Cuatro (GoF) y es uno de los patrones de diseño más simples pero también más controvertidos. Evolucionó a partir de la necesidad de garantizar que ciertas clases tuvieran exactamente una instancia en todo el sistema.',
+    
+    problem: 'En algunos componentes es esencial tener exactamente una instancia de un objeto. Por ejemplo, en una aplicación podría ser adecuado tener un único gestor de configuración, un único motor de base de datos, o un único sistema de logging. Tener múltiples instancias podría llevar a estados inconsistentes, uso ineficiente de recursos o comportamientos incorrectos.',
+    
+    solution: 'El patrón Singleton restringe la instanciación de una clase a un único objeto. Esto se logra creando una clase que se encarga de crear su única instancia, mientras proporciona un método global para acceder a ella. La instancia se crea solo cuando se solicita por primera vez.',
+    
     applicability: [
-      'Cuando debe haber exactamente una instancia de una clase, y debe ser accesible desde un punto de acceso conocido.',
-      'Cuando la única instancia debe ser extensible mediante subclases, y los clientes deben poder usar una instancia extendida sin modificar su código.',
-      'Para gestionar recursos compartidos como pools de conexiones, caches, registros, o configuraciones del sistema.',
-      'Para coordinar acciones en todo el sistema desde un único punto central.'
+      'Cuando debe haber exactamente una instancia de una clase, y debe ser accesible a los clientes desde un punto de acceso conocido y bien definido',
+      'Cuando la única instancia debe ser extensible por subclasificación, y los clientes deben poder usar una instancia extendida sin modificar su código',
+      'Para componentes que gestionan recursos compartidos como conexiones a bases de datos, sistemas de archivo, sockets o cachés',
+      'Para servicios centralizados que no tienen estado o cuyo estado debe ser consistente en todo el sistema'
     ],
+    
     consequences: [
-      'Control de acceso a la instancia única, permitiendo restringir cuándo y cómo se accede a ella.',
-      'Espacio de nombres reducido, evitando variables globales para almacenar objetos únicos.',
-      'Permite refinamiento de operaciones y representación, ya que la clase puede ser subclasificada.',
-      'Puede dificultar las pruebas unitarias al introducir estado global en la aplicación.',
-      'Puede violar el principio de responsabilidad única al gestionar tanto su funcionalidad principal como asegurar su unicidad.'
-    ]
+      'Positivas:',
+      '- Control estricto sobre cómo y cuándo acceden los clientes a la instancia única',
+      '- Reducción del uso de memoria al evitar tener múltiples instancias',
+      '- Evita la contaminación del espacio de nombres global con variables globales',
+      '- Permite refinar las operaciones y la representación de la instancia única',
+      '',
+      'Negativas:',
+      '- Puede hacer más difícil el testing al introducir estado global',
+      '- Puede crear acoplamientos fuertes entre diferentes partes del código',
+      '- Puede crear problemas de concurrencia si no se implementa correctamente',
+      '- Puede violar el principio de responsabilidad única al combinar la lógica de negocio con el control de acceso'
+    ],
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Singleton?</h3>
+      <ul>
+        <li><strong>Recursos compartidos:</strong> Para administrar el acceso a recursos compartidos como conexiones de bases de datos, archivos o sockets.</li>
+        <li><strong>Configuración global:</strong> Para mantener la configuración de una aplicación consistente en todo el sistema.</li>
+        <li><strong>Servicios coordinadores:</strong> Para servicios que necesitan coordinar operaciones en todo el sistema, como un gestor de caché o un despachador de eventos.</li>
+        <li><strong>Estado de aplicación:</strong> Para mantener el estado global de una aplicación cuando es fundamental que todas las partes vean el mismo estado.</li>
+        <li><strong>Operaciones costosas:</strong> Para componentes que son costosos de inicializar y solo se necesitan una vez.</li>
+      </ul>
+      
+      <h3>¿Cuándo NO DEBES usar el patrón Singleton?</h3>
+      <ul>
+        <li><strong>Cuando necesitas testabilidad:</strong> El estado global dificulta escribir pruebas unitarias independientes.</li>
+        <li><strong>Cuando el contexto varía:</strong> Si necesitas diferentes configuraciones en diferentes contextos (como en pruebas vs. producción).</li>
+        <li><strong>En aplicaciones multihilo:</strong> A menos que implementes cuidadosamente la sincronización, puede llevar a condiciones de carrera.</li>
+        <li><strong>En diseños modulares:</strong> El Singleton puede crear dependencias fuertes que dificultan la modularidad.</li>
+        <li><strong>Cuando la inyección de dependencias es mejor:</strong> En muchos casos, pasar las dependencias explícitamente es más flexible y testable.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Conexiones a bases de datos:</strong> Para administrar un pool de conexiones y evitar abrir demasiadas conexiones.</li>
+        <li><strong>Sistemas de logging:</strong> Para centralizar la configuración y gestión de logs.</li>
+        <li><strong>Gestores de caché:</strong> Para mantener una caché global consistente.</li>
+        <li><strong>Gestores de preferencias:</strong> Para almacenar y recuperar configuraciones de usuario de manera centralizada.</li>
+        <li><strong>Spoolers de impresión:</strong> Para coordinar el acceso a recursos de impresión.</li>
+        <li><strong>Motores de juego:</strong> Para componentes centrales como el renderizador, el motor de física o el gestor de recursos.</li>
+      </ul>
+      
+      <h3>Alternativas modernas al Singleton:</h3>
+      <ul>
+        <li><strong>Inyección de dependencias:</strong> Proporciona instancias a través de un contenedor DI en lugar de acceder globalmente.</li>
+        <li><strong>Contextos de aplicación:</strong> Agrupa recursos relacionados bajo un contexto que puede pasarse explícitamente.</li>
+        <li><strong>Módulos:</strong> En lenguajes con soporte para módulos, las exportaciones de módulos pueden proporcionar la misma unicidad sin los problemas del Singleton.</li>
+        <li><strong>Singletons por ámbito:</strong> Instancias únicas dentro de un ámbito limitado, como una sesión de usuario o una transacción.</li>
+      </ul>
+    `
   },
   
   notes: 'El patrón Singleton es a menudo criticado por introducir estado global en la aplicación, lo que puede dificultar las pruebas y aumentar el acoplamiento. Alternativas modernas incluyen la inyección de dependencias. En C++ moderno, la inicialización de Meyer\'s Singleton es generalmente la mejor opción por su simplicidad y thread-safety garantizada. En Java, el enfoque con enum es considerado el más seguro y conciso según "Effective Java" de Joshua Bloch, ya que resuelve automáticamente problemas de reflexión y serialización.'

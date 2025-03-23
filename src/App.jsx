@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import './App.css'
 import Introduccion from './components/Introduccion'
 import DeclaracionPunteros from './components/DeclaracionPunteros'
@@ -25,6 +25,18 @@ const quizzes = {
   'patrones': quizPatronesDiseño
 };
 
+// Definir las secciones disponibles
+const secciones = [
+  { id: 'introduccion', nombre: 'Introducción' },
+  { id: 'declaracion', nombre: 'Declaración' },
+  { id: 'operaciones', nombre: 'Operaciones' },
+  { id: 'arreglos', nombre: 'Arreglos' },
+  { id: 'gestion', nombre: 'Gestión Memoria' },
+  { id: 'funciones', nombre: 'Funciones' },
+  { id: 'avanzados', nombre: 'Avanzados' },
+  { id: 'patrones', nombre: 'Patrones Diseño' }
+];
+
 function App() {
   const [seccionActual, setSeccionActual] = useState('introduccion')
   const [modoQuiz, setModoQuiz] = useState(false)
@@ -40,163 +52,85 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    console.log("Secciones disponibles:", Object.keys(quizzes));
-    console.log("Sección actual:", seccionActual);
-    console.log("Modo quiz:", modoQuiz);
-    console.log("Quiz actual:", quizActual);
-  }, [seccionActual, modoQuiz, quizActual]);
-
   const cambiarSeccion = (seccion) => {
     console.log("Cambiando a sección:", seccion);
-    setSeccionActual(seccion)
-    setModoQuiz(false)
+    setSeccionActual(seccion);
+    setModoQuiz(false);
   }
 
   const iniciarQuiz = (seccion) => {
-    console.log("Iniciando quiz para sección:", seccion);
-    setQuizActual(seccion);
-    setModoQuiz(true);
+    console.log("Iniciando quiz de sección:", seccion);
+    if (quizzes[seccion]) {
+      setQuizActual(quizzes[seccion]);
+      setModoQuiz(true);
+    } else {
+      console.error(`No hay quiz disponible para la sección: ${seccion}`);
+    }
   }
-
-  const secciones = [
-    { id: 'introduccion', nombre: 'Introducción a los Punteros' },
-    { id: 'declaracion', nombre: 'Declaración y Uso Básico' },
-    { id: 'operaciones', nombre: 'Operaciones con Punteros' },
-    { id: 'arreglos', nombre: 'Punteros y Arreglos' },
-    { id: 'gestion', nombre: 'Gestión de Memoria' },
-    { id: 'funciones', nombre: 'Punteros a Funciones' },
-    { id: 'avanzados', nombre: 'Conceptos Avanzados' },
-    { id: 'patrones', nombre: 'Patrones de Diseño' }
-  ]
 
   const renderizarSeccion = () => {
-    if (modoQuiz) {
-      console.log("Renderizando quiz para:", quizActual);
-      console.log("Quiz data disponible:", quizzes[quizActual] ? "Sí" : "No");
-      
-      if (!quizActual || !quizzes[quizActual]) {
-        return <div>No hay preguntas disponibles para esta sección</div>;
-      }
-      
-      return <Quiz preguntas={quizzes[quizActual]} />;
+    if (modoQuiz && quizActual) {
+      return <Quiz preguntas={quizActual} volver={() => setModoQuiz(false)} />;
     }
 
-    switch (seccionActual) {
-      case 'introduccion':
-        return <Introduccion />
-      case 'declaracion':
-        return <DeclaracionPunteros />
-      case 'operaciones':
-        return <OperacionesPunteros />
-      case 'arreglos':
-        return <PunterosArreglos />
-      case 'gestion':
-        return <GestionMemoria />
-      case 'funciones':
-        return <PunterosFunciones />
-      case 'avanzados':
-        return <ConceptosAvanzados />
-      case 'patrones':
-        return <PatronesDiseñoMejorado />
-      default:
-        return <Introduccion />
+    switch(seccionActual) {
+      case 'introduccion': return <Introduccion />;
+      case 'declaracion': return <DeclaracionPunteros />;
+      case 'operaciones': return <OperacionesPunteros />;
+      case 'arreglos': return <PunterosArreglos />;
+      case 'gestion': return <GestionMemoria />;
+      case 'funciones': return <PunterosFunciones />;
+      case 'avanzados': return <ConceptosAvanzados />;
+      case 'patrones': return <PatronesDiseñoMejorado />;
+      default: return <Introduccion />;
     }
-  }
-
-  // Generar el contenido a mostrar con AnimatePresence para transiciones
-  const contenidoActual = renderizarSeccion();
-  const contenidoKey = `${seccionActual}-${modoQuiz}`;
-
-  // Variantes para animaciones
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        when: "beforeChildren",
-        staggerChildren: 0.3
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: { 
-        type: "spring", 
-        stiffness: 100 
-      }
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <motion.div 
-          className="loading-logo"
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-        >
-          C++
-        </motion.div>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          Cargando...
-        </motion.p>
-      </div>
-    );
   }
 
   return (
-    <motion.div 
-      className="app-container"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <Navbar
-        secciones={secciones}
-        seccionActual={seccionActual}
-        cambiarSeccion={cambiarSeccion}
-        modoQuiz={modoQuiz}
-        iniciarQuiz={iniciarQuiz}
-      />
-
-      <header 
-        className="header"
-      >
-        <motion.h1 variants={itemVariants}>Punteros en C++ para Programadores desde Java</motion.h1>
-        <motion.p variants={itemVariants}>Una guía interactiva para entender los punteros en C++, patrones de dsiseño y estructuras de datos</motion.p>
-      </header>
-
-      <main className="main-content">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={contenidoKey}
-            className="seccion"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ type: "spring", stiffness: 100, damping: 15 }}
-          >
-            {contenidoActual}
-          </motion.div>
-        </AnimatePresence>
-      </main>
-
-      <motion.footer 
-        className="footer"
-        variants={itemVariants}
-      >
-        <p> 2025 Punteros en C++ para Programadores Java</p>
-      </motion.footer>
-    </motion.div>
+    <div className="app-container">
+      {loading ? (
+        <motion.div
+          className="loading-screen"
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="loading-logo">C++</div>
+          <p>Cargando contenido...</p>
+        </motion.div>
+      ) : (
+        <>
+          <header className="header">
+            <h1>Guía Completa de Punteros en C++</h1>
+            <Navbar 
+              secciones={secciones}
+              seccionActual={seccionActual} 
+              cambiarSeccion={cambiarSeccion} 
+              iniciarQuiz={iniciarQuiz}
+              modoQuiz={modoQuiz}
+            />
+          </header>
+          
+          <main className="main-content">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={seccionActual + (modoQuiz ? "-quiz" : "")}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                transition={{ duration: 0.3 }}
+              >
+                {renderizarSeccion()}
+              </motion.div>
+            </AnimatePresence>
+          </main>
+          
+          <footer className="footer">
+            <p>© 2025 Guía de Punteros en C++ - Creado con <span className="heart">♥</span> para amantes del código</p>
+          </footer>
+        </>
+      )}
+    </div>
   )
 }
 

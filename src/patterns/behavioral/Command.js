@@ -2,7 +2,7 @@ const commandPattern = {
   id: 'command',
   name: 'Command',
   category: 'behavioral',
-  description: 'El patrón Command encapsula una solicitud como un objeto, permitiendo parametrizar a los clientes con diferentes solicitudes, encolar o registrar solicitudes y soportar operaciones que pueden deshacerse.',
+  description: 'Encapsula una solicitud como un objeto, permitiendo parametrizar clientes con diferentes peticiones, encolar o registrar solicitudes, y soportar operaciones que pueden deshacerse. Convierte las peticiones en objetos independientes que contienen toda la información sobre la solicitud, facilitando la extensibilidad del sistema y el desacoplamiento entre quien invoca las operaciones y quien las ejecuta. Este patrón es fundamental para implementar características como deshacer/rehacer, transacciones, colas de operaciones y callbacks orientados a objetos.',
   
   implementations: {
     cppTraditional: {
@@ -540,28 +540,182 @@ public class CommandDemo {
   ],
   
   theory: {
-    background: 'El patrón Command fue introducido como parte de los 23 patrones del Gang of Four (GoF). Tiene raíces en la programación orientada a objetos y está inspirado en la idea de callbacks y pasaje de mensajes.',
-    problem: 'Necesitamos desacoplar el objeto que invoca una operación del objeto que sabe cómo realizarla. Además, queremos soportar operaciones como deshacer/rehacer, encolar solicitudes, registrar operaciones, o incluso crear transacciones complejas componiendo comandos.',
-    solution: 'El patrón Command encapsula una solicitud como un objeto, permitiendo parametrizar clientes con diferentes solicitudes, encolar o registrar solicitudes, y soportar operaciones que pueden deshacerse. Separa el objeto que invoca la operación del que tiene el conocimiento para ejecutarla.',
+    background: 'El patrón Command fue formalizado por la Banda de los Cuatro (GoF) y se inspira en el concepto de callbacks y pasaje de mensajes. Su idea central es convertir una petición en un objeto independiente que contiene toda la información necesaria para ejecutar la acción o desencadenarla posteriormente. Este enfoque permite desacoplar objetos que solicitan operaciones de los que saben cómo ejecutarlas. El patrón toma inspiración de sistemas operativos y entornos GUI donde las acciones del usuario se encapsulan como "comandos" que pueden ser invocados de múltiples formas (menús, botones, atajos de teclado) y además permiten características como deshacer/rehacer. Su influencia se extiende a numerosos frameworks modernos, arquitecturas orientadas a eventos y sistemas de mensajería.',
+    
+    problem: 'En muchos sistemas, necesitamos desacoplar el objeto que invoca una operación del objeto que sabe cómo realizarla. Además, frecuentemente necesitamos soportar características como: deshacer/rehacer operaciones, encolar solicitudes para procesamiento posterior, programar ejecuciones, implementar transacciones complejas compuestas por operaciones más simples, o registrar modificaciones para auditoría o recuperación. Si implementamos estas operaciones directamente en el código cliente, resulta en alta complejidad, acoplamiento rígido y dificultad para extender el sistema con nuevas funcionalidades. El problema se agrava cuando las mismas operaciones deben invocarse desde múltiples puntos de la aplicación o cuando los receptores de las solicitudes pueden cambiar dinámicamente.',
+    
+    solution: 'El patrón Command encapsula una solicitud como un objeto, permitiendo parametrizar clientes con diferentes solicitudes, encolar o registrar solicitudes, y soportar operaciones que pueden deshacerse. Separa el objeto que invoca la operación (Invoker) del que tiene el conocimiento para ejecutarla (Receiver), utilizando un objeto Command como intermediario que define una interfaz común para ejecutar operaciones. Este diseño permite tratar los comandos como objetos de primera clase: pueden pasarse como parámetros, almacenarse para uso posterior, modificarse o extenderse mediante herencia, y organizarse en estructuras complejas utilizando el patrón Composite para comandos compuestos. Los comandos pueden mantener estado, lo que permite implementar operaciones de deshacer al almacenar los datos necesarios para revertir sus efectos.',
+    
     applicability: [
-      'Para parametrizar objetos con una acción a realizar, similar a los callbacks.',
-      'Para especificar, encolar y ejecutar solicitudes en diferentes momentos.',
-      'Para soportar deshacer/rehacer operaciones, manteniendo un historial de comandos ejecutados.',
-      'Para estructurar un sistema basado en operaciones de alto nivel construidas sobre operaciones primitivas.',
-      'Para implementar transacciones, donde un conjunto de operaciones se trata como una sola unidad que puede ser deshecha si falla parcialmente.'
+      'Para parametrizar objetos con una acción a realizar, de manera similar a los callbacks en programación funcional',
+      'Para especificar, encolar y ejecutar solicitudes en diferentes momentos, incluso en hilos separados',
+      'Para implementar operaciones deshacer/rehacer, manteniendo un historial de comandos ejecutados',
+      'Para estructurar un sistema basado en operaciones de alto nivel construidas sobre operaciones primitivas',
+      'Para implementar transacciones, donde un conjunto de operaciones se trata como una unidad que puede deshacerse completamente si alguna de ellas falla',
+      'Para modelar sistemas basados en peticiones donde el emisor y el receptor deben estar desacoplados',
+      'Cuando necesitas registrar (logging) operaciones para auditoría, debugging o recuperación ante fallos',
+      'En interfaces gráficas para manejar acciones del usuario que pueden invocarse desde múltiples elementos UI',
+      'En sistemas distribuidos para representar operaciones remotas como objetos locales',
+      'Para implementar mecanismos de reintentos y compensación en operaciones que pueden fallar',
+      'Cuando necesitas soportar la programación de tareas para ejecución futura o repetitiva',
+      'Para implementar sistemas basados en eventos donde las acciones pueden ser disparadas por diferentes condiciones'
     ],
-    benefits: [
-      'Desacopla el objeto que invoca la operación del que la implementa.',
-      'Los comandos son objetos de primera clase que pueden ser manipulados y extendidos.',
-      'Facilita añadir nuevos comandos sin cambiar el código existente.',
-      'Permite implementar deshacer/rehacer, registro (logging) y transacciones.',
-      'Permite componer comandos simples en comandos complejos (usando el patrón Composite).'
+    
+    consequences: [
+      'Desacopla el objeto que invoca la operación del objeto que sabe cómo implementarla',
+      'Los comandos son objetos de primera clase que pueden manipularse y extenderse como cualquier otro objeto',
+      'Facilita añadir nuevos comandos sin modificar el código existente, siguiendo el principio abierto/cerrado',
+      'Permite implementar deshacer/rehacer, registro de operaciones y transacciones compuestas',
+      'Permite ensamblar comandos complejos a partir de comandos simples (usando el patrón Composite)',
+      'Puede crear muchas clases pequeñas, aumentando la complejidad estructural del sistema',
+      'Si los comandos son muy simples, introducir clases específicas puede ser una sobrecarga innecesaria',
+      'La implementación de operaciones deshacer puede ser compleja para acciones que modifican datos compartidos',
+      'Mejora la extensibilidad del sistema, permitiendo agregar nuevas acciones con mínimo impacto',
+      'Facilita la implementación de características avanzadas como transacciones, colas, y planificación',
+      'Puede aumentar la complejidad del código si se usa indiscriminadamente para operaciones simples',
+      'Implementar el mecanismo de deshacer/rehacer de forma robusta puede requerir considerable esfuerzo',
+      'Puede introducir sobrecarga de rendimiento debido a la capa adicional de indirección',
+      'En sistemas distribuidos, debe considerarse la idempotencia de los comandos para manejar reenvíos y fallos'
     ],
-    drawbacks: [
-      'Puede introducir muchas clases pequeñas en la aplicación, aumentando la complejidad.',
-      'Si los comandos son muy simples, el overhead de crear clases específicas puede no justificarse.',
-      'La implementación del mecanismo de deshacer puede ser compleja para operaciones que no son fácilmente reversibles.'
-    ]
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Command?</h3>
+      <ul>
+        <li><strong>Interfaces de usuario:</strong> Para implementar acciones desencadenadas por elementos de la interfaz como botones, menús o atajos de teclado. Esto permite que múltiples elementos UI invoquen la misma acción y facilita la implementación de funciones como desactivar comandos no disponibles.</li>
+        <li><strong>Operaciones deshacer/rehacer:</strong> Cuando necesitas mantener un historial de operaciones para poder deshacerlas. Los editores de texto, herramientas de diseño gráfico y muchas aplicaciones profesionales requieren esta funcionalidad.</li>
+        <li><strong>Procesamiento asíncrono:</strong> Para encolar solicitudes que se ejecutarán posteriormente o en hilos diferentes. Útil para operaciones de larga duración que no deben bloquear la interfaz de usuario.</li>
+        <li><strong>Transacciones:</strong> Para agrupar operaciones que deben ejecutarse como una unidad atómica, permitiendo revertir todas las operaciones si alguna falla, similar a las transacciones en bases de datos.</li>
+        <li><strong>Planificación de tareas:</strong> Cuando necesitas programar la ejecución de comandos en momentos específicos o como respuesta a determinados eventos.</li>
+        <li><strong>Macros:</strong> Para grabar secuencias de acciones que pueden reproducirse posteriormente. Útil en aplicaciones de automatización o diseño.</li>
+        <li><strong>Callbacks orientados a objetos:</strong> Como alternativa orientada a objetos para implementar callbacks en sistemas donde la programación funcional no es óptima o donde necesitas mayor encapsulación y control.</li>
+        <li><strong>Sistemas de scripts:</strong> Para implementar intérpretes de comandos o lenguajes específicos de dominio donde cada instrucción se convierte en un objeto comando.</li>
+        <li><strong>Integración de subsistemas:</strong> Para mediar entre subsistemas con interfaces diferentes, encapsulando comandos específicos para cada subsistema.</li>
+        <li><strong>Operaciones remotas:</strong> Para encapsular peticiones a servicios remotos como objetos que pueden ser enviados a través de la red, procesados y potencialmente reintentados en caso de fallo.</li>
+      </ul>
+      
+      <h3>Variantes del patrón Command:</h3>
+      <ul>
+        <li><strong>Command simple:</strong> Implementación básica sin capacidad de deshacer, útil para operaciones de un solo sentido como registro de logs o envío de notificaciones.</li>
+        <li><strong>Command con deshacer:</strong> Incluye un método undo() que revierte los efectos de la ejecución. Puede implementarse de varias formas:
+          <ul>
+            <li>Almacenando el estado anterior antes de ejecutar</li>
+            <li>Ejecutando la operación inversa</li>
+            <li>Usando un patrón Memento para restaurar estados completos</li>
+          </ul>
+        </li>
+        <li><strong>Macro Command (Composite Command):</strong> Implementa el patrón Composite para agrupar múltiples comandos en uno solo, procesándolos en secuencia. Útil para operaciones complejas que se componen de varios pasos.</li>
+        <li><strong>Command con log:</strong> Registra las operaciones ejecutadas en almacenamiento persistente para recuperación ante fallos, auditoría o reproducción posterior.</li>
+        <li><strong>Lazy Command:</strong> Retrasa la ejecución hasta que realmente sea necesaria, optimizando recursos en sistemas con muchas operaciones potenciales.</li>
+        <li><strong>Command funcional:</strong> Implementado con funciones de orden superior, lambdas o closures en lenguajes que soportan programación funcional, reduciendo la necesidad de clases completas.</li>
+        <li><strong>Command con prioridad:</strong> Añade niveles de prioridad para determinar el orden de ejecución en una cola, útil para sistemas donde algunas operaciones son más críticas que otras.</li>
+        <li><strong>Command con reintento:</strong> Incorpora lógica para reintentar la ejecución en caso de fallos, ideal para operaciones en entornos distribuidos o con recursos no confiables.</li>
+        <li><strong>Command con timeout:</strong> Limita el tiempo de ejecución de un comando, cancelándolo si excede un umbral predefinido.</li>
+        <li><strong>Command evento (Event):</strong> Variante utilizada en sistemas basados en eventos donde los comandos representan respuestas a eventos específicos.</li>
+        <li><strong>Command con compensación:</strong> En lugar de deshacer directamente, implementa una operación compensatoria que neutraliza los efectos del comando. Útil en sistemas distribuidos donde no se puede garantizar un rollback perfecto.</li>
+        <li><strong>Command idempotente:</strong> Diseñado para producir el mismo resultado sin importar cuántas veces se ejecute, crucial para sistemas distribuidos donde los comandos pueden duplicarse.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Editores de texto:</strong> Cada acción de edición (insertar, borrar, formatear) se implementa como un comando. Por ejemplo, en un editor como VS Code, cada operación es un comando que puede deshacerse:
+        <pre>
+// Ejemplo conceptual de un comando de editor de texto
+class InsertTextCommand implements Command {
+  private document: TextDocument;
+  private position: Position;
+  private text: string;
+  private deletedText: string = "";
+  
+  constructor(doc: TextDocument, pos: Position, text: string) {
+    this.document = doc;
+    this.position = pos;
+    this.text = text;
+  }
+  
+  execute(): void {
+    // Guarda texto que podría ser sobrescrito para deshacer
+    this.deletedText = this.document.getTextAt(
+      this.position, 
+      this.text.length
+    );
+    this.document.insert(this.position, this.text);
+  }
+  
+  undo(): void {
+    this.document.delete(this.position, this.text.length);
+    if (this.deletedText.length > 0) {
+      this.document.insert(this.position, this.deletedText);
+    }
+  }
+}
+        </pre>
+        </li>
+        <li><strong>Interfaces gráficas:</strong> Frameworks como Swing en Java, WPF en .NET, o componentes en React utilizan comandos para representar acciones del usuario.</li>
+        <li><strong>Transacciones de base de datos:</strong> Las operaciones CRUD se implementan como comandos que pueden revertirse si la transacción falla. Sistemas ORM como Hibernate o Entity Framework utilizan este patrón internamente.</li>
+        <li><strong>Sistemas de control remoto:</strong> Cada botón del control invoca un comando específico en el dispositivo receptor, permitiendo reprogramar funciones sin cambiar la interfaz física.</li>
+        <li><strong>Servidores web:</strong> Las peticiones HTTP se convierten en comandos que el servidor procesa. Frameworks MVC como Spring MVC o ASP.NET utilizan este concepto para manejar requests.</li>
+        <li><strong>Sistemas de juegos:</strong> Las entradas del usuario y las acciones del juego se encapsulan como comandos, facilitando la implementación de replays, macros y configuración de controles.</li>
+        <li><strong>Robótica:</strong> Las instrucciones para robots se modelan como secuencias de comandos que pueden planificarse, validarse o simularse antes de ejecutarse.</li>
+        <li><strong>Arquitecturas orientadas a eventos (Event Sourcing):</strong> Los cambios de estado se modelan como secuencias de comandos, permitiendo reconstruir el estado del sistema reproduciendo estos comandos.</li>
+        <li><strong>Message brokers:</strong> Sistemas como RabbitMQ o Kafka tratan los mensajes como comandos serializados que se enrutan a los procesadores adecuados.</li>
+        <li><strong>Microservicios:</strong> El patrón CQRS (Command Query Responsibility Segregation) utiliza comandos para representar operaciones que modifican estado.</li>
+        <li><strong>E-commerce:</strong> Implementación de carritos de compra donde cada acción (añadir producto, aplicar descuento) es un comando que puede revertirse. Ejemplo:
+        <pre>
+// Sistema de pedidos con patrón Command
+class AddToCartCommand implements Command {
+  constructor(private cart: ShoppingCart, 
+              private product: Product, 
+              private quantity: number) {}
+  
+  private originalQuantity = 0;
+  
+  execute(): void {
+    // Guardar estado para poder deshacer
+    const existing = this.cart.findItem(this.product.id);
+    this.originalQuantity = existing ? existing.quantity : 0;
+    
+    // Ejecutar la operación
+    this.cart.addItem(this.product, this.quantity);
+    this.cart.recalculateTotal();
+  }
+  
+  undo(): void {
+    if (this.originalQuantity === 0) {
+      this.cart.removeItem(this.product.id);
+    } else {
+      this.cart.updateQuantity(this.product.id, this.originalQuantity);
+    }
+    this.cart.recalculateTotal();
+  }
+}
+        </pre>
+        </li>
+      </ul>
+      
+      <h3>Implementación efectiva:</h3>
+      <ul>
+        <li><strong>Comandos inteligentes vs. comandos tontos:</strong> Decide si los comandos contendrán la lógica de negocio (inteligentes) o serán simples delegadores al receptor (tontos). Los comandos inteligentes son más autónomos pero menos reutilizables, mientras que los tontos dependen más del receptor pero son más flexibles.</li>
+        <li><strong>Estado en comandos:</strong> Los comandos inmutables son más seguros para operaciones asíncronas, mientras que comandos con estado facilitan la implementación de undo/redo.</li>
+        <li><strong>Parámetros vs. estado:</strong> Evalúa si pasar los parámetros en la ejecución o almacenarlos en el comando al construirlo. Almacenarlos en el constructor hace que el comando sea más autónomo pero menos flexible.</li>
+        <li><strong>Gestión de memoria:</strong> En sistemas con muchos comandos, considera usar un object pool o comandos flyweight para reducir la sobrecarga. Esto es especialmente importante en entornos de recursos limitados.</li>
+        <li><strong>Serialización:</strong> Para comandos en sistemas distribuidos o persistentes, diseña comandos que sean fácilmente serializables. Considera la separación entre los datos del comando y su comportamiento.</li>
+        <li><strong>Validación:</strong> Decide si la validación ocurre al crear el comando o al ejecutarlo. La validación temprana evita crear comandos inválidos, pero la validación tardía permite evaluar condiciones que solo son conocidas al momento de la ejecución.</li>
+        <li><strong>Composición vs. herencia:</strong> Prefiere componer comandos complejos a partir de simples en lugar de crear jerarquías de herencia profundas. Esto facilita la reutilización y reduce la complejidad.</li>
+        <li><strong>Threading y concurrencia:</strong> Diseña comandos thread-safe si se ejecutarán en entornos multihilo. Considera la inmutabilidad como estrategia para facilitar la concurrencia.</li>
+        <li><strong>Manejo del historial:</strong> En sistemas con deshacer/rehacer, gestiona cuidadosamente el tamaño del historial para evitar consumo excesivo de memoria. Técnicas como snapshots periódicos pueden reducir la cantidad de comandos almacenados.</li>
+        <li><strong>Comandos para deshacer:</strong> En lugar de tener un método "undo" en cada comando, considera implementar "comandos inversos" específicos para deshacer operaciones complejas, separando la responsabilidad.</li>
+      </ul>
+      
+      <h3>Command vs Strategy vs Visitor vs Observer:</h3>
+      <ul>
+        <li><strong>Command:</strong> Encapsula una solicitud como un objeto, permitiendo parametrizar clientes con diferentes peticiones. Se centra en la acción y puede almacenarse para uso posterior. El receptor típicamente ya existe y el comando lo utiliza para realizar una operación específica.</li>
+        <li><strong>Strategy:</strong> Define una familia de algoritmos intercambiables. Mientras Command se enfoca en encapsular una solicitud, Strategy se centra en encapsular algoritmos para hacer lo mismo de diferentes maneras. Las estrategias suelen ser más permanentes, mientras que los comandos pueden ser efímeros.</li>
+        <li><strong>Visitor:</strong> Permite añadir nuevas operaciones a una jerarquía de objetos sin modificarlos. A diferencia de Command, que encapsula una solicitud, Visitor encapsula operaciones que se aplican a estructuras de objetos existentes.</li>
+        <li><strong>Observer:</strong> Define una dependencia uno-a-muchos entre objetos. A diferencia de Command que maneja solicitudes explícitas, Observer maneja notificaciones automáticas cuando cambia el estado de un objeto.</li>
+        <li><strong>Memento:</strong> A menudo se usa junto con Command para implementar undo/redo almacenando estados completos en lugar de operaciones inversas.</li>
+        <li><strong>Chain of Responsibility:</strong> Procesa solicitudes secuencialmente a través de una cadena de manejadores, mientras que Command encapsula la solicitud como un objeto independiente.</li>
+      </ul>
+    `
   }
 };
 

@@ -2,7 +2,7 @@ const compositePattern = {
   id: 'composite',
   name: 'Composite',
   category: 'structural',
-  description: 'El patrón Composite permite tratar objetos individuales y composiciones de objetos de manera uniforme, creando estructuras de árbol jerárquicas donde los clientes pueden tratar tanto objetos individuales como compuestos de la misma manera.',
+  description: 'Compone objetos en estructuras de árbol para representar jerarquías parte-todo. Permite a los clientes tratar de manera uniforme tanto a objetos individuales como a composiciones de objetos, simplificando la interacción con estructuras jerárquicas complejas.',
   
   implementations: {
     cppTraditional: {
@@ -548,22 +548,65 @@ public class CompositeDemo {
   ],
   
   theory: {
-    background: 'El patrón Composite fue introducido por el Gang of Four (GoF) como una solución para representar jerarquías parte-todo. Se inspira en estructuras de árbol donde los elementos pueden ser simples o compuestos.',
-    problem: 'Necesitamos tratar colecciones de objetos de la misma manera que trataríamos un único objeto. Es decir, queremos ignorar las diferencias entre composiciones de objetos y objetos individuales, lo que complica el código cliente.',
-    solution: 'El patrón Composite compone objetos en estructuras de árbol para representar jerarquías parte-todo. Permite a los clientes tratar objetos individuales y composiciones de manera uniforme a través de una interfaz común.',
+    background: 'El patrón Composite fue formalizado por la Banda de los Cuatro (GoF) y se inspira en estructuras de árbol presentes en la naturaleza y en muchos sistemas organizativos. Su concepto proviene de la composición gráfica, donde elementos visuales simples pueden combinarse para formar elementos más complejos, pero manteniendo una interfaz común para todos ellos.',
+    
+    problem: 'Al diseñar sistemas con estructuras jerárquicas, como interfaces gráficas, documentos compuestos o jerarquías organizativas, surge un dilema: ¿cómo representar objetos individuales (hojas) y composiciones de objetos (contenedores) de manera que el código cliente pueda tratarlos uniformemente? Sin un patrón adecuado, el código cliente necesitaría saber si está tratando con un objeto simple o compuesto, complicando el diseño.',
+    
+    solution: 'El patrón Composite organiza objetos en estructuras de árbol para representar jerarquías parte-todo. Define una clase base abstracta o interfaz común para todos los objetos (componentes). Los objetos simples (hojas) y compuestos (composites que contienen otros componentes) implementan esta interfaz, permitiendo a los clientes manejarlos de manera uniforme.',
+    
     applicability: [
-      'Cuando quieres representar jerarquías parte-todo de objetos.',
-      'Cuando quieres que los clientes ignoren la diferencia entre composiciones de objetos y objetos individuales.',
-      'Cuando la estructura puede tener cualquier nivel de complejidad y anidamiento.',
-      'Cuando quieres que el código cliente funcione con todos los objetos en la jerarquía de manera uniforme.'
+      'Cuando necesitas representar jerarquías parte-todo en estructuras de árbol',
+      'Cuando quieres que los clientes ignoren la diferencia entre composiciones de objetos y objetos individuales',
+      'Para sistemas con componentes que se pueden anidar a cualquier nivel de profundidad',
+      'Cuando el código cliente debe operar de manera uniforme sobre todos los objetos de la estructura jerárquica',
+      'Para implementar relaciones de composición recursiva donde los componentes pueden contener otros componentes del mismo tipo'
     ],
+    
     consequences: [
-      'Define jerarquías de clases consistentes de objetos primitivos y complejos.',
-      'Facilita añadir nuevos tipos de componentes que funcionan automáticamente con el código existente.',
-      'Hace el código cliente más simple, trabajando con una interfaz uniforme.',
-      'Puede hacer el diseño demasiado general, dificultando restringir ciertos componentes.',
-      'Puede complicar el diseño cuando los componentes hoja y compuestos tienen comportamientos muy diferentes.'
-    ]
+      'Define jerarquías de clase con objetos primitivos y compuestos, simplificando la arquitectura',
+      'Facilita añadir nuevos tipos de componentes sin cambiar el código cliente existente',
+      'Proporciona una estructura natural para representar jerarquías "parte-todo"',
+      'Hace más sencillo para los clientes el trabajar con estructuras de objetos complejas',
+      'Puede complicar el diseño al unificar las interfaces entre objetos simples y compuestos',
+      'Puede hacer que sea difícil restringir el tipo de componentes que pueden añadirse a una composición'
+    ],
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Composite?</h3>
+      <ul>
+        <li><strong>Estructuras jerárquicas:</strong> Para representar estructuras que se organizan naturalmente como árboles, como sistemas de archivos, organizaciones o menús anidados.</li>
+        <li><strong>Tratamiento uniforme:</strong> Cuando necesitas operar sobre grupos de objetos de la misma manera que sobre objetos individuales.</li>
+        <li><strong>Operaciones recursivas:</strong> Cuando las operaciones deben aplicarse recursivamente a todos los elementos de una estructura compleja.</li>
+        <li><strong>Profundidad variable:</strong> Cuando los objetos pueden anidarse a niveles de profundidad desconocidos.</li>
+        <li><strong>Delegación transparente:</strong> Cuando quieres que las operaciones se propaguen automáticamente a través de una estructura jerárquica.</li>
+      </ul>
+      
+      <h3>Variantes del patrón Composite:</h3>
+      <ul>
+        <li><strong>Composite transparente:</strong> Donde la interfaz del componente incluye métodos para administrar hijos (add, remove), dando una interfaz uniforme pero menos segura.</li>
+        <li><strong>Composite seguro:</strong> Donde las operaciones para manejar hijos solo se definen en la clase Composite, más seguro pero requiere conversiones de tipo.</li>
+        <li><strong>Composite con acceso a padres:</strong> Mantiene referencias a los padres para facilitar la navegación en ambas direcciones.</li>
+        <li><strong>Composite con visitor:</strong> Combina con el patrón Visitor para realizar operaciones complejas en la estructura jerárquica.</li>
+        <li><strong>Composite con caché:</strong> Mantiene una caché de resultados computados para mejorar el rendimiento de operaciones repetidas.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Interfaces gráficas de usuario:</strong> Componentes de UI como paneles, ventanas y controles en frameworks como Swing, React o Angular.</li>
+        <li><strong>Sistemas de archivos:</strong> Donde directorios y archivos comparten una interfaz común para operaciones como copiar, mover o eliminar.</li>
+        <li><strong>Documentos compuestos:</strong> En editores gráficos o de texto, donde un documento puede contener texto, imágenes, tablas y otros elementos.</li>
+        <li><strong>Expresiones aritméticas:</strong> Donde números y operadores forman expresiones compuestas evaluables.</li>
+        <li><strong>Árboles DOM:</strong> En navegadores web, donde elementos HTML pueden contener otros elementos, formando una estructura jerárquica.</li>
+        <li><strong>Menús anidados:</strong> En aplicaciones, donde un menú puede contener tanto elementos de menú como submenús.</li>
+      </ul>
+      
+      <h3>Composite vs Decorator vs Flyweight</h3>
+      <ul>
+        <li><strong>Composite:</strong> Se enfoca en la estructura jerárquica y la composición de objetos para formar árboles.</li>
+        <li><strong>Decorator:</strong> Añade responsabilidades adicionales a objetos individuales dinámicamente, pero no está destinado a formar estructuras de árbol.</li>
+        <li><strong>Flyweight:</strong> Comparte eficientemente objetos pequeños que aparecen en gran número, mientras que Composite organiza objetos en estructuras anidadas.</li>
+      </ul>
+    `
   },
   
   notes: 'El patrón Composite se utiliza ampliamente en interfaces gráficas de usuario, sistemas de archivos, estructuras organizacionales y cualquier escenario donde existan jerarquías parte-todo. Un desafío común en la implementación es decidir dónde colocar la responsabilidad de gestionar hijos (en la interfaz Component o solo en Composite). La elección depende del equilibrio deseado entre seguridad y transparencia.'

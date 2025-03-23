@@ -6,25 +6,68 @@
 
 const factoryMethodPattern = {
   id: 'factory-method',
-  name: "Factory Method",
-  category: "creational",
-  description: "Define una interfaz para crear objetos en una superclase, pero permite que las subclases alteren el tipo de objetos que se crearán.",
+  name: 'Factory Method',
+  category: 'creational',
+  description: 'Define una interfaz para crear objetos, pero permite a las subclases decidir qué clase instanciar. Permite que una clase delegue la responsabilidad de instanciación en sus subclases, facilitando la extensibilidad y el desacoplamiento entre creación y uso de objetos.',
   
   theory: {
-    background: 'El patrón Factory Method es útil cuando una clase no puede anticipar la clase de objetos que debe crear.',
-    problem: 'Una clase necesita crear instancias de diferentes clases, pero no quiere estar acoplada directamente a ellas.',
-    solution: 'Definir una interfaz para crear objetos, pero permitir que las subclases decidan qué clase instanciar.',
+    background: 'El patrón Factory Method es uno de los patrones creacionales fundamentales identificados por la Banda de los Cuatro (GoF). Evolucionó como una forma de permitir que los frameworks sean extensibles sin modificar el código base, siguiendo el principio de inversión de dependencias y el principio abierto/cerrado.',
+    
+    problem: 'Cómo puede una clase crear objetos cuyo tipo exacto no conoce de antemano, permitiendo que el sistema sea extensible sin modificar el código existente. Además, cómo minimizar el acoplamiento entre la lógica de creación y la lógica de negocio, evitando que el código cliente dependa directamente de clases concretas.',
+    
+    solution: 'El patrón Factory Method define un método abstracto en una clase base (llamado "método de fábrica") que las subclases implementan para crear objetos específicos. El código cliente llama a este método abstracto cuando necesita una instancia, pero sin conocer el tipo concreto de objeto que recibirá. La responsabilidad de decidir qué clase instanciar se delega a las subclases.',
+    
     applicability: [
-      "Cuando una clase no puede anticipar la clase de objetos que debe crear",
-      "Cuando una clase quiere que sus subclases especifiquen los objetos que crean",
-      "Cuando las clases delegan responsabilidad en una de varias subclases auxiliares, y quieres localizar el conocimiento de cuál subclase es la delegada"
+      'Cuando una clase no puede anticipar la clase de objetos que debe crear, pero quiere delegar la responsabilidad a sus subclases',
+      'Cuando necesitas proporcionar a los usuarios una forma de extender los componentes internos de una biblioteca o framework',
+      'Cuando quieres reutilizar objetos existentes en lugar de reconstruirlos cada vez (como en pools de objetos)',
+      'Cuando la creación del objeto implica procesos complejos que deben ser centralizados y no repetidos en el código cliente',
+      'Cuando el sistema debe ser independiente de cómo se crean, componen y representan sus productos'
     ],
+    
     consequences: [
-      "Elimina la necesidad de vincular clases específicas en el código",
-      "Proporciona hooks para que las subclases extiendan la creación de objetos",
-      "Conecta jerarquías de clases paralelas",
-      "Añade complejidad al código, ya que introduce muchas subclases solo para crear objetos"
-    ]
+      'Elimina la necesidad de vincular el código de la aplicación a clases concretas específicas',
+      'Facilita la incorporación de nuevas clases de productos sin cambiar el código existente',
+      'Promueve la consistencia encapsulando la lógica de creación en un solo lugar',
+      'Puede conducir a una jerarquía de clases más compleja con muchas subclases',
+      'Aplica el principio de inversión de dependencias, dependiendo de abstracciones, no de implementaciones concretas'
+    ],
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Factory Method?</h3>
+      <ul>
+        <li><strong>Extensibilidad del sistema:</strong> Cuando necesitas que tu sistema pueda incorporar nuevos tipos de objetos sin modificar el código existente.</li>
+        <li><strong>Frameworks y bibliotecas:</strong> Cuando desarrollas frameworks donde los usuarios deben poder extender la funcionalidad base.</li>
+        <li><strong>Pruebas unitarias:</strong> Cuando necesitas sustituir implementaciones reales por objetos de prueba o simulaciones.</li>
+        <li><strong>Complejidad en la creación:</strong> Cuando la creación de un objeto implica decisiones complejas, configuración específica o varios pasos.</li>
+        <li><strong>Dependencia de contexto:</strong> Cuando la creación del objeto depende del entorno, configuración o estado del sistema.</li>
+      </ul>
+      
+      <h3>Factory Method vs Abstract Factory vs Builder</h3>
+      <ul>
+        <li><strong>Factory Method:</strong> Se centra en crear un producto a través de herencia y subclases. Cada subclase decide qué clase concreta crear.</li>
+        <li><strong>Abstract Factory:</strong> Proporciona una interfaz para crear familias de objetos relacionados sin especificar sus clases concretas. Utiliza composición en lugar de herencia.</li>
+        <li><strong>Builder:</strong> Se enfoca en la construcción paso a paso de objetos complejos, separando la construcción de la representación, permitiendo diferentes representaciones mediante el mismo proceso.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Frameworks UI:</strong> Botones, ventanas y otros componentes adaptados a diferentes plataformas (Windows, macOS, web).</li>
+        <li><strong>Conexiones de base de datos:</strong> Crear el conector adecuado según el tipo de base de datos (MySQL, PostgreSQL, MongoDB).</li>
+        <li><strong>Motores de juegos:</strong> Creación de enemigos, obstáculos o niveles según el contexto del juego.</li>
+        <li><strong>Parsers de documentos:</strong> Crear el parser correcto según el formato del documento (XML, JSON, CSV).</li>
+        <li><strong>Frameworks de logging:</strong> Crear diferentes implementaciones de loggers según la configuración (archivo, consola, base de datos).</li>
+        <li><strong>Sistemas de renderizado:</strong> Crear renderizadores adaptados a diferentes dispositivos o capacidades gráficas.</li>
+      </ul>
+      
+      <h3>Variantes del patrón Factory Method:</h3>
+      <ul>
+        <li><strong>Método de fábrica simple:</strong> Una versión simplificada que no requiere herencia, sino que encapsula la creación en un método estático.</li>
+        <li><strong>Método de fábrica parametrizado:</strong> Recibe un parámetro que determina qué tipo de objeto crear, como un enum o cadena identificativa.</li>
+        <li><strong>Factory Method con registro:</strong> Permite registrar y desregistrar dinámicamente tipos de productos que el factory puede crear.</li>
+        <li><strong>Lazy Factory:</strong> Crea e inicializa objetos solo cuando son necesarios por primera vez.</li>
+      </ul>
+    `
   },
   
   implementations: {

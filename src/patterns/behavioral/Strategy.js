@@ -5,7 +5,130 @@ export const strategyPattern = {
   id: 'strategy',
   category: 'behavioral',
   name: 'Strategy',
-  description: 'Define una familia de algoritmos, encapsula cada uno y los hace intercambiables. Strategy permite que el algoritmo varíe independientemente de los clientes que lo utilizan.',
+  description: 'Define una familia de algoritmos, encapsula cada uno y los hace intercambiables. Strategy permite que el algoritmo varíe independientemente de los clientes que lo utilizan, favoreciendo la composición sobre la herencia y facilitando la selección del comportamiento en tiempo de ejecución sin recurrir a condicionales complejos.',
+  
+  theory: {
+    background: 'El patrón Strategy fue formalizado por la Banda de los Cuatro (GoF) en su libro "Design Patterns". Este patrón tiene sus raíces en los principios fundamentales de la programación orientada a objetos, específicamente en el principio "favorecer la composición sobre la herencia" y "encapsular lo que varía". La idea es extraer comportamientos variables en jerarquías de clases separadas, permitiendo que sean intercambiados dinámicamente sin alterar el código cliente que los utiliza.',
+    
+    problem: 'En muchos sistemas, un mismo problema puede resolverse de diferentes maneras según el contexto. Implementar estas variantes directamente en el código cliente usando condicionales crea dependencias rígidas, dificulta la mantención y viola el principio Open/Closed. A medida que aumentan las variantes o se añaden nuevas condiciones, el código se vuelve cada vez más complejo y propenso a errores. Además, mezclar múltiples algoritmos con la lógica de negocio dificulta la reutilización, el testing y la extensión del sistema cuando aparecen nuevos requisitos.',
+    
+    solution: 'El patrón Strategy define una familia de algoritmos, encapsula cada uno en una clase separada que implementa una interfaz común, y los hace intercambiables. Permite seleccionar el algoritmo en tiempo de ejecución. La clase contexto mantiene una referencia a una estrategia y delega en ella la ejecución del algoritmo. Esta separación permite modificar, añadir o eliminar algoritmos sin afectar al contexto o a los clientes. El contexto puede cambiar dinámicamente la estrategia utilizada, ya sea por requerimiento del cliente o en respuesta a condiciones de ejecución.',
+    
+    applicability: [
+      'Cuando necesitas usar diferentes variantes de un algoritmo dentro de un objeto y poder cambiarlas durante el tiempo de ejecución',
+      'Cuando tienes muchas clases relacionadas que solo difieren en su comportamiento',
+      'Para aislar la lógica de negocio de una clase de los detalles de implementación de algoritmos que pueden no ser tan importantes en su contexto',
+      'Cuando una clase define muchos comportamientos, y estos aparecen como múltiples declaraciones condicionales en sus operaciones',
+      'Para eliminar condicionales grandes que seleccionan el comportamiento a ejecutar, reemplazándolos con objetos estrategia',
+      'Cuando quieres ocultar la complejidad de múltiples algoritmos del código cliente',
+      'Cuando tienes un conjunto de algoritmos donde solo uno será utilizado en un momento dado según las condiciones de ejecución o entradas del cliente',
+      'Cuando deseas implementar el principio de responsabilidad única separando la política de selección de algoritmos de su implementación'
+    ],
+    
+    consequences: [
+      'Permite la sustitución de algoritmos en tiempo de ejecución',
+      'Aísla la implementación de un algoritmo del código que lo utiliza',
+      'Elimina condicionales complejos al encapsular algoritmos en clases separadas',
+      'Promueve la reutilización de código a través de la herencia o composición de estrategias',
+      'Facilita el testing aislado de cada estrategia y del contexto',
+      'Facilita la extensión del sistema con nuevas estrategias sin modificar el código existente',
+      'Mejora la cohesión al separar comportamientos específicos de la lógica general',
+      'Puede aumentar el número de objetos en el sistema, creando sobrecarga si hay muchas estrategias',
+      'Incrementa la complejidad inicial debido a la creación de múltiples clases e interfaces',
+      'El cliente debe conocer las diferentes estrategias para elegir la apropiada'
+    ],
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Strategy?</h3>
+      <ul>
+        <li><strong>Variantes de algoritmos:</strong> Cuando necesitas diferentes variantes de un algoritmo y quieres poder cambiar entre ellas dinámicamente, como diferentes algoritmos de ordenación (quicksort, mergesort, heapsort) según el tamaño o características de los datos.</li>
+        <li><strong>Evitar condicionales extensos:</strong> Cuando tienes grandes bloques de condicionales para seleccionar diferentes comportamientos. Sustituir estos condicionales por estrategias mejora la legibilidad y mantenibilidad.</li>
+        <li><strong>Configuración en tiempo de ejecución:</strong> Cuando la aplicación debe configurar comportamientos en tiempo de ejecución, por ejemplo, seleccionar diferentes algoritmos de compresión según el tipo de archivo o preferencias del usuario.</li>
+        <li><strong>Flexibilidad en sistemas extensibles:</strong> Cuando desarrollas frameworks o aplicaciones que necesitan ser extendidas por otros desarrolladores con nuevos comportamientos sin modificar el código base.</li>
+        <li><strong>Operaciones con políticas variables:</strong> Como estrategias de cálculo de impuestos, validación de datos, rutas de navegación, o algoritmos de pricing, donde las reglas pueden variar según jurisdicción, tipo de usuario o temporada.</li>
+        <li><strong>Comportamientos según contexto:</strong> Cuando el comportamiento debe adaptarse según el entorno de ejecución, como estrategias de renderizado optimizadas para diferentes tipos de hardware.</li>
+      </ul>
+      
+      <h3>Variantes del patrón Strategy:</h3>
+      <ul>
+        <li><strong>Strategy con objetos de función:</strong> En lugar de clases completas, se utilizan funciones u objetos función (lambdas, functors) como estrategias, común en lenguajes con soporte para funciones de primera clase.</li>
+        <li><strong>Strategy estático:</strong> Donde la estrategia se selecciona en tiempo de compilación mediante templates o generics, optimizando el rendimiento a costa de la flexibilidad en tiempo de ejecución.</li>
+        <li><strong>Strategy con compuestos:</strong> Combinando el patrón Strategy con Composite para crear estrategias que son combinaciones de otras estrategias más simples.</li>
+        <li><strong>Strategy contextual:</strong> Donde la estrategia tiene acceso al contexto para adaptar su comportamiento basándose en el estado actual, creando una relación más estrecha pero manteniendo la separación de responsabilidades.</li>
+        <li><strong>Strategy con fábrica:</strong> Combinando con el patrón Factory para crear estrategias apropiadas automáticamente según diferentes criterios sin que el cliente necesite conocer los detalles de implementación.</li>
+        <li><strong>Strategy con flyweight:</strong> Para reutilizar estrategias comunes entre múltiples contextos, reduciendo la sobrecarga de memoria cuando hay muchas instancias de contexto.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Estrategias de navegación GPS:</strong> Ruta más corta, menos tráfico, sin autopistas, etc. Cada estrategia implementa el mismo algoritmo base (encontrar una ruta) pero con diferentes criterios de optimización:</li>
+        <pre>
+// Ejemplo conceptual en pseudocódigo
+interface RouteStrategy {
+  calculateRoute(start, end): Route;
+}
+
+class FastestRouteStrategy implements RouteStrategy {
+  calculateRoute(start, end) {
+    // Prioriza rutas con mayor velocidad media
+    return routeWithMinimumTravelTime(start, end);
+  }
+}
+
+class ShortestRouteStrategy implements RouteStrategy {
+  calculateRoute(start, end) {
+    // Prioriza rutas con menor distancia
+    return routeWithMinimumDistance(start, end);
+  }
+}
+
+class NavigationApp {
+  private routeStrategy: RouteStrategy;
+  
+  setRouteStrategy(strategy: RouteStrategy) {
+    this.routeStrategy = strategy;
+  }
+  
+  navigateTo(destination) {
+    const route = this.routeStrategy.calculateRoute(
+      currentLocation, 
+      destination
+    );
+    display(route);
+  }
+}
+        </pre>
+        <li><strong>Métodos de pago en e-commerce:</strong> Tarjeta de crédito, PayPal, transferencia bancaria, cada uno con su propia estrategia de procesamiento, autenticación y validación.</li>
+        <li><strong>Algoritmos de compresión:</strong> ZIP, RAR, 7Z, cada uno implementado como una estrategia diferente para un mismo contexto de compresión de archivos.</li>
+        <li><strong>Validación en formularios:</strong> Diferentes estrategias de validación según el tipo de campo (email, teléfono, fecha) o contexto (registro, login, recuperación de contraseña).</li>
+        <li><strong>Estrategias de autenticación:</strong> Contraseña local, OAuth, LDAP, autenticación biométrica, donde el sistema de login utiliza la estrategia apropiada según la configuración.</li>
+        <li><strong>Algoritmos de renderizado:</strong> En gráficos por computadora, diferentes estrategias para renderizar objetos basadas en complejidad o distancia para optimizar rendimiento.</li>
+        <li><strong>Caching:</strong> Diferentes estrategias de caché (LRU, FIFO, TTL) según el tipo de datos o patrones de acceso.</li>
+        <li><strong>Pricing dinámico:</strong> En comercio electrónico, diferentes algoritmos de fijación de precios según demanda, inventario, temporada o segmento de cliente.</li>
+      </ul>
+      
+      <h3>Implementación Efectiva:</h3>
+      <ul>
+        <li><strong>Interfaces claras:</strong> Define una interfaz estrategia con métodos precisos que capturen la variabilidad esencial.</li>
+        <li><strong>Estrategias por defecto:</strong> Proporciona una estrategia predeterminada para simplificar el uso inicial.</li>
+        <li><strong>Comportamiento nulo:</strong> Considera implementar una "estrategia nula" que no haga nada, como alternativa a comprobar si existe una estrategia.</li>
+        <li><strong>Contexto independiente:</strong> El contexto no debería depender de los detalles de implementación de las estrategias concretas.</li>
+        <li><strong>Estrategias parametrizadas:</strong> Permite configurar estrategias mediante parámetros para hacerlas más flexibles sin proliferar clases.</li>
+        <li><strong>Considera funciones:</strong> En lenguajes con funciones de primera clase, una simple función puede ser más adecuada que una clase completa para estrategias simples.</li>
+        <li><strong>Evita estado en estrategias:</strong> Preferiblemente, las estrategias deberían ser stateless para facilitar su reutilización entre diferentes contextos.</li>
+      </ul>
+      
+      <h3>Strategy vs State vs Command vs Template Method:</h3>
+      <ul>
+        <li><strong>Strategy:</strong> Se centra en cómo hacer algo, encapsulando diferentes algoritmos que son intercambiables. El cliente o contexto selecciona explícitamente qué estrategia usar.</li>
+        <li><strong>State:</strong> También encapsula comportamientos, pero estos están vinculados a estados específicos del objeto. La transición entre estados y, por tanto, comportamientos, ocurre implícitamente basada en reglas internas.</li>
+        <li><strong>Command:</strong> Encapsula una solicitud completa como un objeto, permitiendo parametrizar clientes con operaciones, encolar solicitudes y soportar operaciones reversibles. Se enfoca en qué hacer, no en cómo hacerlo.</li>
+        <li><strong>Template Method:</strong> Define el esqueleto de un algoritmo, delegando algunos pasos a las subclases. A diferencia de Strategy, usa herencia en lugar de composición y tiene una estructura fija con puntos de extensión predefinidos.</li>
+        <li><strong>Decorator:</strong> Añade responsabilidades a objetos dinámicamente, mientras que Strategy cambia el comportamiento interno sin añadir responsabilidades.</li>
+      </ul>
+    `
+  },
+  
   implementations: {
     cppTraditional: {
       code: `// La interfaz Strategy que declara operaciones comunes a todas las versiones soportadas
@@ -325,25 +448,6 @@ public class StrategyDemo {
       ]
     }
   },
-  theory: {
-    background: "El patrón Strategy fue introducido por primera vez en el libro 'Design Patterns' del Gang of Four. Este patrón permite seleccionar el algoritmo a utilizar en tiempo de ejecución, facilitando la extensibilidad y mantenimiento del código.",
-    problem: "¿Cómo podemos diseñar una clase que tenga comportamientos que varíen según la situación, sin hacer que la clase sea compleja y difícil de mantener? ¿Cómo podemos cambiar el comportamiento de una clase en tiempo de ejecución?",
-    solution: "El patrón Strategy define una familia de algoritmos, encapsula cada uno como una clase y los hace intercambiables. Permite que los algoritmos varíen independientemente de los clientes que los utilizan.",
-    applicability: [
-      "Cuando necesitas utilizar diferentes variantes de un algoritmo dentro de un objeto y poder cambiar de algoritmo en tiempo de ejecución",
-      "Cuando hay muchas clases relacionadas que solo difieren en su comportamiento",
-      "Cuando quieres aislar la lógica del algoritmo de los detalles de implementación que no deberían conocerlo",
-      "Cuando una clase define muchos comportamientos y estos aparecen como múltiples declaraciones condicionales en sus operaciones"
-    ],
-    consequences: [
-      "Permite cambiar algoritmos utilizados dentro de un objeto en tiempo de ejecución",
-      "Aísla los detalles de implementación de los algoritmos del código que los utiliza",
-      "Facilita la sustitución de herencia por composición",
-      "Elimina declaraciones condicionales complejas",
-      "Proporciona alternativas a la herencia para compartir comportamientos",
-      "En C++ tradicional, requiere gestión manual de memoria que puede ser propensa a errores"
-    ]
-  },
   comparisons: [
     {
       title: "Gestión de memoria",
@@ -370,5 +474,8 @@ public class StrategyDemo {
       java: "Operaciones más sencillas con colecciones a través de la biblioteca Collections."
     }
   ],
-  notes: "El patrón Strategy es especialmente útil cuando se requiere flexibilidad para cambiar algoritmos en tiempo de ejecución. En C++, a menudo se implementa utilizando polimorfismo, mientras que en Java se suele implementar mediante interfaces. Las implementaciones modernas en C++ se benefician enormemente de los punteros inteligentes para una gestión segura de la memoria."
+  notes: 'El patrón Strategy es particularmente útil en lenguajes orientados a objetos que soportan interfaces y polimorfismo. Sin embargo, en lenguajes con funciones de primera clase como JavaScript, Python o lenguajes funcionales, a menudo se puede implementar de forma más sencilla utilizando funciones en lugar de clases. Las implementaciones modernas en lenguajes con tipado estático pueden aprovechar genéricos/templates para crear estrategias más flexibles y type-safe. El patrón Strategy a menudo se combina con otros patrones como Factory Method para crear estrategias adecuadas, Singleton para estrategias sin estado que pueden ser compartidas, o Flyweight para optimizar el uso de memoria cuando se utilizan muchas instancias. Al implementar este patrón, es importante considerar el equilibrio entre flexibilidad y complejidad, y evaluar si la variabilidad del comportamiento justifica la introducción de este patrón.'
 };
+
+// Exportamos el patrón
+export default strategyPattern;

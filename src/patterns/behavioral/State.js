@@ -2,7 +2,7 @@ const statePattern = {
   id: 'state',
   name: 'State',
   category: 'behavioral',
-  description: 'El patrón State permite a un objeto alterar su comportamiento cuando su estado interno cambia. Parece como si el objeto cambiara su clase.',
+  description: 'Permite a un objeto alterar su comportamiento cuando su estado interno cambia. El objeto parecerá cambiar su clase, facilitando la gestión de estados complejos sin utilizar grandes condicionales. Este patrón es especialmente útil para modelar máquinas de estados, procesos con ciclos de vida definidos y sistemas cuyo comportamiento varía significativamente según su estado.',
   
   implementations: {
     cppTraditional: {
@@ -661,30 +661,225 @@ public class StatePatternDemo {
   ],
   
   theory: {
-    background: 'El patrón State fue introducido como uno de los 23 patrones de diseño del Gang of Four (GoF). Se clasifica como un patrón de comportamiento porque se ocupa de algoritmos y la asignación de responsabilidades entre objetos.',
-    problem: 'Cuando el comportamiento de un objeto debe cambiar dependiendo de su estado interno, y el número de posibles estados es grande o puede cambiar con el tiempo, el uso de condicionales en cada método crea código difícil de mantener y extender.',
-    solution: 'El patrón State sugiere crear nuevas clases para cada estado posible del objeto y extraer los comportamientos específicos de estado en estas clases. El objeto original, llamado contexto, almacena una referencia a un objeto de estado que representa su estado actual y delega todas las operaciones relacionadas con el estado a este objeto.',
+    background: 'El patrón State fue formalizado por la Banda de los Cuatro (GoF) y se inspira en las máquinas de estados finitos de la teoría de autómatas. Este patrón permite que un objeto altere su comportamiento cuando su estado interno cambia, sin recurrir a condicionales extensos y complejos, proporcionando una forma elegante de gestionar estados múltiples. Su diseño refleja el concepto matemático de autómatas de estado finito, donde un sistema puede existir en un número limitado de estados y las transiciones entre estos estados están bien definidas y ocurren en respuesta a eventos específicos.',
+    
+    problem: 'Cuando el comportamiento de un objeto debe cambiar dependiendo de su estado interno, y el número de posibles estados es grande o puede cambiar con el tiempo, el uso de condicionales en cada método crea código difícil de mantener y extender. Estos condicionales esparcidos por todo el código generan complejidad, redundancia y dificultad para añadir nuevos estados. Además, la lógica de transición entre estados queda distribuida y fragmentada a lo largo del código, dificultando la comprensión del ciclo de vida completo del objeto y aumentando el riesgo de errores cuando se modifican las reglas de transición o se añaden nuevos estados.',
+    
+    solution: 'El patrón State sugiere crear clases separadas para cada estado posible del objeto y extraer los comportamientos específicos de estado en estas clases. El objeto original, llamado contexto, mantiene una referencia a un objeto de estado que representa su estado actual y delega todas las operaciones relacionadas con el estado a este objeto. Para cambiar el estado del contexto, se reemplaza el objeto de estado activo con otro objeto que representa el nuevo estado. Este enfoque elimina la necesidad de condicionales extensos, encapsula el comportamiento específico de cada estado en su propia clase, y hace explícitas las transiciones entre estados, mejorando la legibilidad y mantenibilidad del código.',
+    
     applicability: [
-      'Cuando el comportamiento de un objeto depende de su estado y debe cambiar en tiempo de ejecución.',
-      'Cuando hay operaciones con múltiples condicionales que dependen del estado del objeto.',
-      'Cuando se desea evitar código con muchas condiciones relacionadas con el estado en múltiples métodos.',
-      'Cuando las transiciones de estado siguen reglas definidas que pueden ser encapsuladas dentro de las clases de estado.',
-      'Para reducir la complejidad del código cuando hay muchos estados posibles y transiciones entre ellos.'
+      'Cuando el comportamiento de un objeto depende de su estado y debe cambiar en tiempo de ejecución',
+      'Cuando hay operaciones con múltiples condicionales que dependen del estado del objeto',
+      'Cuando se desea evitar código con muchas condiciones relacionadas con el estado en múltiples métodos',
+      'Cuando las transiciones de estado siguen reglas definidas que pueden ser encapsuladas dentro de las clases de estado',
+      'Para reducir la complejidad del código cuando hay muchos estados posibles y transiciones entre ellos',
+      'Cuando se necesita modelar de forma explícita un ciclo de vida complejo en objetos persistentes',
+      'Para implementar máquinas de estado finito donde el comportamiento del sistema cambia completamente según el estado actual',
+      'Cuando quieres implementar sistemas reactivos que responden de manera diferente a los mismos eventos según su estado interno',
+      'Para objetos que deben cambiar su interfaz visible (métodos disponibles) según su estado, simulando el cambio de clase'
     ],
-    benefits: [
-      'Organiza el código relacionado con estados específicos en clases separadas.',
-      'Hace las transiciones de estado explícitas.',
-      'Permite que los estados sean objetos que pueden ser compartidos.',
-      'Facilita agregar nuevos estados sin cambiar el contexto ni otros estados existentes.',
-      'Elimina las instrucciones condicionales largas y complejas.'
+    
+    consequences: [
+      'Organiza el código relacionado con estados específicos en clases separadas, mejorando la cohesión y aplicando el principio de responsabilidad única',
+      'Hace las transiciones de estado explícitas y más fáciles de entender',
+      'Permite que los estados sean objetos que pueden ser compartidos entre múltiples instancias de contexto',
+      'Facilita añadir nuevos estados sin cambiar el contexto ni otros estados existentes, siguiendo el principio abierto/cerrado',
+      'Elimina las instrucciones condicionales largas y complejas, mejorando la legibilidad y mantenibilidad',
+      'Puede introducir muchas clases pequeñas, aumentando la complejidad estructural del código',
+      'Las reglas de transición pueden quedar dispersas entre diferentes clases de estado si no se diseña adecuadamente',
+      'Puede dificultar el seguimiento del flujo de control a través de múltiples estados',
+      'Permite validaciones específicas según el estado, evitando operaciones inválidas según el estado actual',
+      'Simplifica la depuración al hacer más explícito el flujo de control entre estados',
+      'Aumenta la testabilidad al poder probar cada estado de forma aislada',
+      'Puede crear overhead innecesario si el objeto tiene pocos estados o comportamientos simples'
     ],
-    drawbacks: [
-      'Puede ser excesivo para máquinas de estado simples con pocos estados.',
-      'Introduce muchas clases pequeñas, lo que puede ser difícil de seguir si el número de estados es muy grande.',
-      'Si hay muchas transiciones entre estados, puede ser difícil mantener la consistencia.',
-      'Las reglas de transición pueden quedar dispersas entre diferentes clases de estado.',
-      'Puede complicar el código si se requiere compartir información entre diferentes estados.'
-    ]
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón State?</h3>
+      <ul>
+        <li><strong>Máquinas de estado:</strong> Cuando necesitas implementar una máquina de estados finitos en código orientado a objetos, donde cada estado tiene comportamiento y reglas de transición bien definidos.</li>
+        <li><strong>Comportamiento condicional complejo:</strong> Cuando tienes métodos con múltiples ramas condicionales basadas en el estado del objeto y estas empiezan a ser difíciles de mantener o extender.</li>
+        <li><strong>Navegación de interfaces:</strong> Para gestionar las diferentes vistas y comportamientos de una interfaz de usuario basada en su estado actual, como las diferentes pantallas en un asistente paso a paso.</li>
+        <li><strong>Flujos de trabajo:</strong> Para implementar procesos que atraviesan diferentes estados con transiciones bien definidas, como trámites administrativos, procesamientos de pedidos o aprobaciones con múltiples pasos.</li>
+        <li><strong>Objetos con ciclo de vida:</strong> Cuando necesitas modelar objetos que tienen un ciclo de vida complejo con diferentes comportamientos en cada etapa, como documentos en un sistema de gestión documental.</li>
+        <li><strong>Sistemas de juego:</strong> Para controlar el comportamiento de elementos del juego según su estado (personajes, enemigos, niveles, etc.) donde el comportamiento cambia radicalmente entre estados.</li>
+        <li><strong>Validación contextual:</strong> Cuando las validaciones que se aplican a una operación dependen del estado actual del objeto, permitiendo o denegando operaciones específicas.</li>
+      </ul>
+      
+      <h3>Variantes del patrón State:</h3>
+      <ul>
+        <li><strong>State con transiciones internas:</strong> Donde cada estado determina el siguiente estado en caso de una transición, encapsulando completamente la lógica de cambio de estado.</li>
+        <li><strong>State con contexto compartido:</strong> Donde los estados tienen acceso al contexto para consultar o modificar otros aspectos del objeto, permitiendo decisiones más complejas.</li>
+        <li><strong>State con jerarquía:</strong> Donde los estados pueden heredar comportamiento de estados base compartiendo comportamiento común, reduciendo duplicación de código.</li>
+        <li><strong>State con historial:</strong> Que mantiene un registro de estados anteriores para permitir volver a ellos (combina con Memento), útil para implementar funcionalidad de "deshacer".</li>
+        <li><strong>State como Singleton:</strong> Cuando los estados no tienen información de instancia y pueden compartirse entre múltiples contextos, optimizando el uso de memoria.</li>
+        <li><strong>State generado:</strong> Estados creados mediante generadores de código o máquinas de estado declarativas, a partir de una definición formal de la máquina de estados.</li>
+        <li><strong>State con eventos:</strong> Donde las transiciones son desencadenadas por eventos explícitos que son procesados de manera diferente según el estado actual.</li>
+        <li><strong>State con transiciones condicionales:</strong> Donde las transiciones entre estados dependen no solo del evento sino también de condiciones adicionales que se evalúan en tiempo de ejecución.</li>
+        <li><strong>State con acciones de entrada/salida:</strong> Donde se definen acciones específicas que se ejecutan al entrar o salir de un estado, independientemente de la transición específica.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Reproductor multimedia:</strong> Con estados como Reproduciendo, Pausado, Detenido, cada uno con comportamiento específico para las operaciones de control. Por ejemplo:
+        <pre>
+// Pseudocódigo para un reproductor con patrón State
+class MediaPlayer {
+  private PlayerState state;
+  private URL mediaSource;
+  private boolean isBuffering;
+  
+  public MediaPlayer() {
+    this.state = new StoppedState();
+    this.state.setContext(this);
+  }
+  
+  public void play() {
+    state.play();
+  }
+  
+  public void pause() {
+    state.pause();
+  }
+  
+  public void stop() {
+    state.stop();
+  }
+  
+  public void changeState(PlayerState newState) {
+    this.state = newState;
+    this.state.setContext(this);
+  }
+}
+
+interface PlayerState {
+  void setContext(MediaPlayer player);
+  void play();
+  void pause();
+  void stop();
+}
+
+class PlayingState implements PlayerState {
+  private MediaPlayer player;
+  
+  public void setContext(MediaPlayer player) {
+    this.player = player;
+  }
+  
+  public void play() {
+    // Ya está reproduciendo, no hacemos nada
+  }
+  
+  public void pause() {
+    // Pausar reproducción
+    player.changeState(new PausedState());
+  }
+  
+  public void stop() {
+    // Detener reproducción
+    player.changeState(new StoppedState());
+  }
+}
+        </pre>
+        </li>
+        <li><strong>Procesamiento de pedidos:</strong> Gestionando estados como Creado, Pagado, Enviado, Entregado, Cancelado, donde cada estado permite diferentes operaciones.</li>
+        <li><strong>Editor de documentos:</strong> Con diferentes modos de edición como Inserción, Selección, Formato, donde cada estado procesa las pulsaciones de teclado y clics de forma diferente.</li>
+        <li><strong>Conexiones de red:</strong> Gestionando estados como Desconectado, Conectando, Conectado, Transferencia de datos, con comportamientos específicos para cada operación de red.</li>
+        <li><strong>Sistemas de autorización:</strong> Con estados de usuario como Anónimo, Autenticado, Autorizado, Bloqueado, donde cada estado determina las operaciones permitidas.</li>
+        <li><strong>Control de juegos:</strong> Para implementar comportamientos de enemigos con estados como Patrullar, Perseguir, Atacar, Huir, con distintas lógicas de movimiento y comportamiento.</li>
+        <li><strong>Aplicación de impuestos:</strong> Estados como Borrador, En revisión, Aprobado, Rechazado, con diferentes niveles de edición y validación permitidos.</li>
+        <li><strong>Semáforos y sistemas de control:</strong> Implementando la secuencia de estados y transiciones, con comportamientos específicos para cada color/fase.</li>
+        <li><strong>Formularios de múltiples pasos:</strong> Donde cada paso representa un estado con diferentes validaciones y opciones disponibles:
+        <pre>
+// Implementación conceptual de un formulario multi-paso
+class MultiStepForm {
+  private FormState currentState;
+  private Map<String, Object> formData = new HashMap<>();
+  
+  public MultiStepForm() {
+    currentState = new PersonalInfoState();
+    currentState.setForm(this);
+  }
+  
+  public void next() {
+    currentState.next();
+  }
+  
+  public void previous() {
+    currentState.previous();
+  }
+  
+  public void submit() {
+    currentState.submit();
+  }
+  
+  public void changeState(FormState newState) {
+    currentState = newState;
+    currentState.setForm(this);
+  }
+  
+  public void saveData(String key, Object value) {
+    formData.put(key, value);
+  }
+  
+  public Object getData(String key) {
+    return formData.get(key);
+  }
+}
+
+class AddressInfoState implements FormState {
+  private MultiStepForm form;
+  
+  public void setForm(MultiStepForm form) {
+    this.form = form;
+  }
+  
+  public void next() {
+    // Validar datos de dirección antes de avanzar
+    if (validateAddressData()) {
+      form.changeState(new PaymentInfoState());
+    }
+  }
+  
+  public void previous() {
+    form.changeState(new PersonalInfoState());
+  }
+  
+  public void submit() {
+    // No permitir envío desde este paso intermedio
+    showError("Complete todos los pasos antes de enviar");
+  }
+  
+  private boolean validateAddressData() {
+    // Lógica de validación específica para la dirección
+    return true;
+  }
+}
+        </pre>
+        </li>
+      </ul>
+      
+      <h3>Implementación efectiva del patrón State:</h3>
+      <ul>
+        <li><strong>Determina quién define las transiciones:</strong> Decide si las transiciones las controla el contexto, los estados, o una combinación de ambos. Cuando los estados controlan las transiciones, la lógica de transición está más encapsulada pero más distribuida.</li>
+        <li><strong>Considera estados compartidos:</strong> Para estados sin información de instancia, implementa Singleton o objetos flyweight para reducir el overhead de memoria, especialmente si hay muchas instancias del contexto.</li>
+        <li><strong>Maneja transiciones no permitidas:</strong> Define comportamiento claro para cuando se intenta una operación no válida en un estado determinado (lanzar excepciones, ignorar, registrar error, etc.).</li>
+        <li><strong>Centraliza la lógica de transición:</strong> Si las reglas de transición son complejas o cambian frecuentemente, considera extraerlas a una tabla de transición o un componente específico.</li>
+        <li><strong>Balanza entre herencia y composición:</strong> Usa herencia para estados con comportamiento común, pero prefiere composición para comportamientos que pueden combinarse de diferentes maneras.</li>
+        <li><strong>Minimiza dependencia del contexto:</strong> Pasa solo la información necesaria a los métodos de estado, o proporciona interfaces específicas en el contexto para limitar el acoplamiento.</li>
+        <li><strong>Considera estados dinámicos:</strong> En algunos casos, los estados pueden generarse dinámicamente o configurarse en tiempo de ejecución, aumentando la flexibilidad del sistema.</li>
+        <li><strong>Maneja estado persistente:</strong> Para objetos de larga duración o que requieren persistencia, implementa serialización de estado o mapeo a un formato persistente (como bases de datos).</li>
+      </ul>
+      
+      <h3>State vs Strategy vs Command vs Template Method:</h3>
+      <ul>
+        <li><strong>State:</strong> Se centra en cambiar el comportamiento de un objeto cuando cambia su estado interno. El objeto parecerá cambiar su clase. Las transiciones entre estados son parte clave del patrón, y cada estado conoce sus posibles transiciones.</li>
+        <li><strong>Strategy:</strong> Define una familia de algoritmos intercambiables para diferentes situaciones. Mientras State maneja cómo un objeto cambia su comportamiento según su estado, Strategy permite elegir diferentes algoritmos independientemente del estado. En Strategy no hay concepto de transición entre estrategias.</li>
+        <li><strong>Command:</strong> Encapsula una solicitud como un objeto, permitiendo parametrizar objetos con operaciones. Puede combinarse con State cuando diferentes estados requieren ejecutar diferentes comandos. Command se enfoca en la operación, mientras State se enfoca en el contexto que cambia.</li>
+        <li><strong>Template Method:</strong> Define el esqueleto de un algoritmo, permitiendo que las subclases redefinan ciertos pasos. Se diferencia de State en que Template Method usa herencia para variar partes de un algoritmo, mientras State usa composición para cambiar comportamientos completos.</li>
+        <li><strong>Visitor:</strong> Permite separar algoritmos de la estructura de objetos sobre la que operan. A diferencia de State que cambia el comportamiento del objeto según su estado interno, Visitor mantiene la estructura pero permite aplicar diferentes operaciones sobre ella.</li>
+      </ul>
+    `
   }
 };
 

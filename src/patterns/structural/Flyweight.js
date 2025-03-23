@@ -2,7 +2,7 @@ const flyweightPattern = {
   id: 'flyweight',
   name: 'Flyweight',
   category: 'structural',
-  description: 'El patrón Flyweight reduce el uso de memoria compartiendo eficientemente objetos que se utilizan en múltiples contextos simultáneamente. El patrón separa las partes intrínsecas (compartidas) y extrínsecas (contextuales) de un objeto para permitir un gran número de objetos aparentemente únicos.',
+  description: 'Optimiza el uso de memoria compartiendo eficientemente datos comunes entre múltiples objetos. Este patrón separa las características intrínsecas (compartidas) de las extrínsecas (únicas) de los objetos, permitiendo manejar grandes cantidades de objetos finos (flyweights) con una huella de memoria mínima, ideal para escenarios donde miles de objetos similares podrían consumir recursos críticos.',
   
   implementations: {
     cppTraditional: {
@@ -497,31 +497,98 @@ public class FlyweightDemo {
   ],
   
   theory: {
-    background: 'El patrón Flyweight fue introducido en 1990 como parte de los 23 patrones del Gang of Four (GoF). Se inspiró en técnicas de optimización utilizadas en sistemas gráficos y editores de texto para gestionar grandes cantidades de objetos con recursos limitados.',
-    problem: 'Cuando una aplicación utiliza un gran número de objetos que tienen partes de su estado en común, mantener una instancia separada para cada objeto puede resultar prohibitivamente costoso en términos de memoria. Por ejemplo, un editor de texto que represente cada carácter como un objeto completo o un videojuego con miles de árboles idénticos.',
-    solution: 'El patrón Flyweight resuelve este problema separando el estado de un objeto en dos partes: estado intrínseco (compartido) y estado extrínseco (contextual). Las partes compartidas se mantienen en objetos Flyweight que pueden ser reutilizados entre múltiples objetos contextuales, reduciendo significativamente el consumo de memoria.',
+    background: 'El patrón Flyweight fue formalizado por la Banda de los Cuatro (GoF) y se inspira en el término de boxeo para referirse a la categoría de peso más ligero. Su origen está en la optimización de sistemas gráficos y entornos de edición de texto que deben manejar miles de caracteres con atributos compartidos. Desarrollado inicialmente para el sistema de edición de documentos ET++ a finales de los 80, el patrón aborda el desafío fundamental de mantener un rendimiento óptimo cuando el sistema debe gestionar un gran número de objetos con características similares.',
+    
+    problem: 'Algunas aplicaciones podrían crear un número enorme de objetos que tienen partes idénticas o similares de su estado. Esto puede consumir toda la memoria disponible y degradar el rendimiento del sistema, especialmente en entornos con recursos limitados. Por ejemplo, un editor de texto que representa cada carácter como un objeto completo, incluyendo fuente, tamaño y estilo, consumiría una cantidad excesiva de memoria al editar documentos grandes. En aplicaciones gráficas, juegos o simulaciones, donde miles de entidades comparten propiedades, la duplicación innecesaria de datos puede llevar a problemas de rendimiento severos.',
+    
+    solution: 'El patrón Flyweight resuelve este problema dividiendo el estado del objeto en dos partes: estado intrínseco (compartido) y estado extrínseco (único). El estado intrínseco se almacena dentro del objeto Flyweight y puede ser compartido entre múltiples objetos, mientras que el estado extrínseco depende del contexto y se mantiene o pasa por los clientes. Se utiliza una factory para gestionar la creación y reutilización de los objetos Flyweight, actuando como un caché que devuelve instancias existentes cuando es posible en lugar de crear nuevas. Esto reduce drásticamente el consumo de memoria en situaciones donde se necesitan muchos objetos similares.',
+    
     applicability: [
-      'Cuando la aplicación utiliza un gran número de objetos que tienen partes de estado duplicadas.',
-      'Cuando el uso de memoria es crítico para el rendimiento de la aplicación.',
-      'Cuando la mayoría del estado del objeto puede hacerse extrínseco (contextual).',
-      'Cuando grupos de objetos pueden ser reemplazados por relativamente pocos objetos compartidos una vez que se elimina el estado extrínseco.',
-      'Cuando la aplicación no depende de la identidad de los objetos, ya que los flyweights comparten instancias.'
+      'Cuando una aplicación utiliza un gran número de objetos similares que consumen mucha memoria',
+      'Cuando la mayoría del estado del objeto puede hacerse extrínseco (externo al objeto)',
+      'Cuando muchos grupos de objetos pueden ser reemplazados por relativamente pocos objetos compartidos',
+      'Cuando la aplicación no depende de la identidad de los objetos, ya que los objetos Flyweight se comparten',
+      'Cuando es crítico para el rendimiento y el consumo de recursos reducir la huella de memoria',
+      'En sistemas con restricciones de recursos como aplicaciones móviles, sistemas embebidos o juegos',
+      'Cuando necesitas representar grandes cantidades de datos en memoria caché con estructuras eficientes'
     ],
-    benefits: [
-      'Reduce drásticamente el consumo de memoria cuando se trabaja con un gran número de objetos similares.',
-      'Centraliza el estado común en un solo lugar, facilitando actualizaciones y mantenimiento.',
-      'Puede mejorar el rendimiento en sistemas con recursos limitados o aplicaciones que necesitan escalar a grandes números de objetos.',
-      'Permite la representación de estructuras jerárquicas complejas con menos objetos.',
-      'Combina bien con otros patrones como Composite para estructuras aún más eficientes.'
+    
+    consequences: [
+      'Reduce la cantidad total de memoria necesaria para una gran cantidad de objetos similares',
+      'Centraliza el estado que antes estaba distribuido entre muchos objetos',
+      'Mejora la localidad de referencia en la caché de la CPU, lo que puede mejorar el rendimiento',
+      'Puede reducir significativamente los tiempos de carga cuando se manejan grandes conjuntos de datos',
+      'Facilita la gestión de recursos compartidos mediante un punto central (factory)',
+      'Introduce cierta complejidad adicional al separar el estado intrínseco y extrínseco',
+      'Puede aumentar el tiempo de computación si el estado extrínseco tiene que calcularse frecuentemente',
+      'Hace más difícil gestionar el comportamiento que depende de la identidad del objeto, ya que los objetos se comparten',
+      'Puede complicar la sincronización en entornos multihilo si los flyweights son modificables'
     ],
-    drawbacks: [
-      'Añade complejidad al código debido a la necesidad de separar estado intrínseco y extrínseco.',
-      'La gestión de la fábrica de flyweights añade una capa adicional de indirección.',
-      'Puede complicar el seguimiento de los cambios de estado, ya que un cambio en un flyweight afecta a todos los objetos que lo utilizan.',
-      'El rendimiento puede verse afectado negativamente si el contexto (estado extrínseco) es demasiado grande o costoso de transferir en cada operación.',
-      'No es adecuado cuando hay pocas oportunidades para compartir estado o cuando los objetos tienen estados únicos principalmente.'
-    ]
-  }
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Flyweight?</h3>
+      <ul>
+        <li><strong>Problemas críticos de memoria:</strong> Cuando tu aplicación está creando miles o millones de objetos similares y está alcanzando límites de memoria, como en editores de texto con documentos extensos o juegos con muchas entidades.</li>
+        <li><strong>Datos compartidos inmutables:</strong> Cuando muchos objetos comparten información idéntica que puede extraerse y compartirse, especialmente datos de referencia que no cambian.</li>
+        <li><strong>Sistemas gráficos:</strong> Para la representación eficiente de texto, sprites, partículas o elementos visuales repetitivos en aplicaciones gráficas o juegos. Por ejemplo, un juego podría tener miles de árboles, pero solo docenas de modelos 3D y texturas.</li>
+        <li><strong>Cachés de objetos:</strong> Para implementar sistemas de caché donde los objetos frecuentemente accedidos pueden reutilizarse en lugar de recrearse, como en conexiones a bases de datos o resultados de cálculos complejos.</li>
+        <li><strong>Sistemas con grandes conjuntos de datos:</strong> Cuando trabajas con grandes cantidades de datos que tienen muchos elementos repetidos, como en análisis de datos o sistemas de información geográfica.</li>
+        <li><strong>Aplicaciones móviles:</strong> En entornos con recursos limitados donde la optimización de memoria es crucial para el rendimiento y la vida de la batería.</li>
+      </ul>
+      
+      <h3>Variantes del patrón Flyweight:</h3>
+      <ul>
+        <li><strong>Flyweight clásico:</strong> Implementación con estado intrínseco compartido y estado extrínseco pasado por operaciones, como se describe en el patrón original.</li>
+        <li><strong>Flyweight compuesto:</strong> Donde los objetos Flyweight pueden contener referencias a otros objetos Flyweight, formando estructuras complejas mientras mantienen la eficiencia de memoria.</li>
+        <li><strong>Pool de objetos:</strong> Similar al Flyweight pero con énfasis en la reutilización de objetos completos más que en compartir estado. Se centra en reducir el costo de creación y destrucción.</li>
+        <li><strong>Flyweight sin factory:</strong> Implementaciones que utilizan tablas hash, Singleton o técnicas de inicialización en tiempo de carga en lugar de una factory explícita.</li>
+        <li><strong>Flyweight con inmutabilidad:</strong> Particularmente común en lenguajes funcionales, donde los objetos son inmutables por diseño, facilitando el compartir estado de manera segura.</li>
+        <li><strong>Flyweight con caché multinivel:</strong> Implementaciones que utilizan diferentes niveles de caché para objetos con diferentes frecuencias de uso, optimizando tanto memoria como acceso.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Editores de texto:</strong> Como Microsoft Word o Google Docs, donde los caracteres con el mismo formato comparten objetos de estilo:</li>
+        <pre>
+// En un editor, muchos caracteres pueden compartir el mismo formato
+class TextFormat {
+    private final String fontFamily;
+    private final int fontSize;
+    private final boolean isBold;
+    private final boolean isItalic;
+    
+    // Un documento con 100,000 caracteres podría usar solo docenas de objetos TextFormat
+}
+        </pre>
+        <li><strong>Aplicaciones de mapas:</strong> En aplicaciones como Google Maps, donde se reutilizan texturas y modelos para representar elementos repetitivos como árboles, edificios o marcadores estándar en el mapa.</li>
+        <li><strong>Motores de juegos:</strong> Para gestionar sprites, texturas, sonidos y otros recursos compartidos entre múltiples instancias. Por ejemplo, un juego de estrategia podría tener miles de unidades pero solo docenas de tipos diferentes.</li>
+        <li><strong>Internamiento de cadenas:</strong> Como String.intern() en Java, que asegura que cadenas idénticas compartan la misma memoria, reduciendo duplicados en grandes conjuntos de datos textuales.</li>
+        <li><strong>Cachés de base de datos:</strong> En ORM como Hibernate, donde los objetos de entidad pueden compartir metadatos y definiciones entre múltiples instancias, reduciendo la sobrecarga de memoria.</li>
+        <li><strong>Sistemas de partículas:</strong> En gráficos por computadora, donde miles de partículas similares comparten propiedades como textura o comportamiento, pero tienen posiciones y velocidades individuales.</li>
+        <li><strong>Navegadores web:</strong> Donde elementos DOM con el mismo estilo CSS comparten las mismas reglas de estilo computadas, en lugar de duplicar la información para cada elemento.</li>
+      </ul>
+      
+      <h3>Mejores prácticas de implementación:</h3>
+      <ul>
+        <li><strong>Inmutabilidad:</strong> Los objetos Flyweight deben ser inmutables para permitir un compartir seguro entre diferentes contextos, especialmente en entornos multihilo.</li>
+        <li><strong>Separación clara:</strong> Identifica claramente qué estado es intrínseco (compartible) y qué es extrínseco (contextual), basándote en qué propiedades varían más entre instancias.</li>
+        <li><strong>Factory centralizada:</strong> Usa una factory para gestionar la creación y reutilización de flyweights, aplicando técnicas de caché como tablas hash para búsquedas eficientes.</li>
+        <li><strong>Contexto explícito:</strong> Pasa el estado extrínseco explícitamente a las operaciones de flyweight, evitando almacenarlo dentro del flyweight.</li>
+        <li><strong>Control de ciclo de vida:</strong> Considera mecanismos para liberar flyweights que ya no se necesitan, especialmente en aplicaciones de larga duración.</li>
+        <li><strong>Monitorización:</strong> Implementa métricas para seguir el uso de memoria y el número de objetos flyweight activos, para verificar la eficacia del patrón.</li>
+      </ul>
+      
+      <h3>Flyweight vs Singleton vs Object Pool vs Prototype</h3>
+      <ul>
+        <li><strong>Flyweight:</strong> Se centra en compartir eficientemente datos comunes entre múltiples objetos para ahorrar memoria. Permite múltiples instancias compartidas que difieren en su estado extrínseco.</li>
+        <li><strong>Singleton:</strong> Asegura que una clase tenga solo una instancia y proporciona un punto de acceso global a ella, enfocándose en limitar la instanciación. No está diseñado para compartir datos entre múltiples objetos distintos.</li>
+        <li><strong>Object Pool:</strong> Pre-crea y recicla objetos completos para evitar el costo de creación/destrucción frecuente, enfocándose en el rendimiento de la asignación de objetos más que en compartir estado común.</li>
+        <li><strong>Prototype:</strong> Crea nuevos objetos clonando existentes, proporcionando un mecanismo para copiar objetos sin acoplar el código a sus clases específicas. A diferencia de Flyweight, crea copias independientes, no instancias compartidas.</li>
+      </ul>
+    `
+  },
+  
+  notes: 'El patrón Flyweight es crucial en aplicaciones que manejan grandes cantidades de objetos con características similares. Su implementación efectiva requiere un análisis cuidadoso para identificar qué datos pueden compartirse (intrínsecos) y cuáles deben mantenerse únicos (extrínsecos). En lenguajes con recolección de basura como Java, ten cuidado de no mantener referencias innecesarias a flyweights que ya no se usan, pues podrían impedir la liberación de memoria. En C++, considera el uso de smart pointers para gestionar el ciclo de vida de los flyweights compartidos. Este patrón es particularmente valioso en desarrollo de juegos, visualización de datos, editores y aplicaciones móviles, donde la optimización de recursos es primordial.'
 };
 
 export default flyweightPattern;

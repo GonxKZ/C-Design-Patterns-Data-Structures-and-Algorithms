@@ -2,7 +2,7 @@ const facadePattern = {
   id: 'facade',
   name: 'Facade',
   category: 'structural',
-  description: 'El patrón Facade proporciona una interfaz unificada y de alto nivel para un conjunto de interfaces en un subsistema. Define una interfaz de nivel superior que hace que el subsistema sea más fácil de usar.',
+  description: 'Proporciona una interfaz unificada y simplificada a un conjunto de interfaces en un subsistema. Define una interfaz de alto nivel que hace que el subsistema sea más fácil de usar, ocultando su complejidad y facilitando la interacción con componentes complejos.',
   
   implementations: {
     cppTraditional: {
@@ -588,30 +588,65 @@ public class FacadeDemo {
   ],
   
   theory: {
-    background: 'El patrón Facade fue introducido como parte de los 23 patrones del Gang of Four (GoF). Está inspirado en la arquitectura de edificios, donde una fachada proporciona una cara simplificada a un sistema más complejo detrás.',
-    problem: 'Un sistema orientado a objetos típicamente contiene muchas clases con interfaces complejas. Los clientes necesitan entender detalles de implementación para usar el sistema correctamente, creando un acoplamiento fuerte. Además, las funcionalidades complejas requieren que los clientes coordinen múltiples subsistemas, lo que aumenta la complejidad del código cliente.',
-    solution: 'El patrón Facade proporciona una interfaz unificada de alto nivel para un conjunto de interfaces en un subsistema. Define una interfaz simplificada que hace que el subsistema sea más fácil de usar, ocultando su complejidad y facilitando su utilización por parte de los clientes.',
+    background: 'El patrón Facade fue formalizado por la Banda de los Cuatro (GoF) y se inspira en la arquitectura real, donde una fachada es la cara exterior de un edificio que oculta sus complejidades internas. Este patrón surge de la necesidad de simplificar sistemas complejos proporcionando un punto de entrada único y coherente para los clientes.',
+    
+    problem: 'A medida que los sistemas evolucionan, tienden a volverse más complejos. Los subsistemas suelen tener múltiples componentes interconectados con diversas APIs y dependencias. Esto dificulta su uso, ya que los clientes necesitan conocer en detalle el funcionamiento interno, lo que aumenta el acoplamiento y complica el mantenimiento y la evolución del código.',
+    
+    solution: 'El patrón Facade proporciona una interfaz simplificada y unificada a un conjunto de interfaces en un subsistema. Funciona como una capa de abstracción de alto nivel que encapsula un subsistema complejo, definiendo una interfaz más sencilla y fácil de usar. La fachada no encapsula el subsistema, sino que delega las solicitudes del cliente a los objetos apropiados dentro del subsistema.',
+    
     applicability: [
-      'Cuando se necesita proporcionar una interfaz simple y unificada para un subsistema complejo.',
-      'Para desacoplar un subsistema de sus clientes y otros subsistemas, promoviendo la independencia y portabilidad.',
-      'Para estructurar un sistema en capas, donde la fachada define el punto de entrada a cada nivel del subsistema.',
-      'Cuando se desea reducir las dependencias entre los clientes y las implementaciones concretas del subsistema.',
-      'Para envolver una API pobremente diseñada o compleja con una interfaz más limpia y amigable.'
+      'Cuando necesitas proporcionar una interfaz simple y unificada a un subsistema complejo',
+      'Cuando quieres desacoplar un subsistema de sus clientes y otros subsistemas',
+      'Cuando necesitas organizar un sistema en capas y necesitas definir puntos de entrada para cada nivel',
+      'Cuando un sistema es muy complejo o difícil de comprender porque tiene un gran número de clases interdependientes',
+      'Cuando existe un patrón de uso común que puede simplificarse con una interfaz unificada'
     ],
-    benefits: [
-      'Simplifica el uso de subsistemas complejos proporcionando una única interfaz de alto nivel.',
-      'Reduce el acoplamiento entre los clientes y los subsistemas, permitiendo cambios en la implementación sin afectar al código cliente.',
-      'Promueve el principio de "mínimo conocimiento" (Ley de Demeter), donde los objetos solo interactúan con sus "vecinos cercanos".',
-      'Organiza el sistema en capas, mejorando la estructura y mantenibilidad del código.',
-      'Oculta los detalles de implementación, protegiendo a los clientes de cambios internos en los subsistemas.'
+    
+    consequences: [
+      'Aísla los clientes de los componentes del subsistema, reduciendo el número de objetos con los que los clientes tienen que interactuar',
+      'Promueve el bajo acoplamiento entre subsistemas y sus clientes',
+      'No impide que las aplicaciones utilicen las clases del subsistema si necesitan acceso directo',
+      'Simplifica el código cliente al proporcionar una interfaz unificada para funcionalidades comunes',
+      'Puede convertirse en un objeto "dios" que conoce demasiado y hace demasiado si no se diseña adecuadamente',
+      'Introduce una capa adicional que puede impactar en el rendimiento en casos críticos'
     ],
-    drawbacks: [
-      'Puede convertirse en un "objeto Dios" que conoce demasiado sobre los subsistemas si no se diseña adecuadamente.',
-      'Añade una capa adicional de indirección que podría afectar el rendimiento en sistemas críticos.',
-      'La fachada podría ocultar funcionalidades importantes de los subsistemas que algunos clientes avanzados podrían necesitar.',
-      'Puede tentarnos a evitar el rediseño de subsistemas deficientes, usándola como un "parche" en lugar de resolver los problemas fundamentales.',
-      'Si la fachada crece demasiado, puede violar el principio de responsabilidad única al asumir demasiadas funciones.'
-    ]
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Facade?</h3>
+      <ul>
+        <li><strong>Sistemas complejos:</strong> Cuando trabajas con bibliotecas o frameworks complejos que requieren configuración detallada o múltiples pasos para realizar tareas comunes.</li>
+        <li><strong>Capas de abstracción:</strong> Para crear capas en tu aplicación y proporcionar puntos de entrada bien definidos para cada capa (por ejemplo, separar la lógica de negocio del acceso a datos).</li>
+        <li><strong>APIs legibles:</strong> Cuando necesitas proporcionar una API limpia y coherente para un conjunto de funcionalidades relacionadas pero dispersas.</li>
+        <li><strong>Refactorización gradual:</strong> Para envolver sistemas heredados o código legacy, permitiendo su modernización incremental sin afectar al código cliente.</li>
+        <li><strong>Compatibilidad hacia atrás:</strong> Para mantener compatibilidad con código existente mientras introduces nuevas implementaciones internas.</li>
+      </ul>
+      
+      <h3>Variantes del patrón Facade:</h3>
+      <ul>
+        <li><strong>Facade simple:</strong> La implementación básica que proporciona una interfaz unificada para un subsistema.</li>
+        <li><strong>Facades múltiples:</strong> Proporcionar diferentes fachadas para distintos aspectos o casos de uso de un mismo subsistema.</li>
+        <li><strong>Facade con estado:</strong> Fachadas que mantienen estado entre llamadas, recordando configuraciones o resultados previos.</li>
+        <li><strong>Facade con caché:</strong> Implementaciones que almacenan en caché resultados para mejorar el rendimiento.</li>
+        <li><strong>Facade adaptadora:</strong> Combina los patrones Facade y Adapter para proporcionar una interfaz simplificada y adaptada a un sistema existente.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Bibliotecas de acceso a bases de datos:</strong> ORMs como Hibernate, Entity Framework o Sequelize que ocultan la complejidad de SQL y las operaciones de bajo nivel.</li>
+        <li><strong>Frameworks front-end:</strong> React, Angular o Vue proporcionan fachadas para manipulación del DOM y gestión de eventos.</li>
+        <li><strong>APIs de servicios web:</strong> Clases cliente que simplifican la interacción con APIs REST o SOAP, ocultando detalles de HTTP y serialización.</li>
+        <li><strong>Módulos de autenticación:</strong> Servicios que encapsulan la complejidad de OAuth, JWT u otros protocolos de autenticación.</li>
+        <li><strong>Sistemas de logging:</strong> Frameworks como Log4j o Winston que proporcionan una interfaz simple para operaciones de registro mientras gestionan complejidades de rotación de archivos, niveles de log, etc.</li>
+        <li><strong>Servicios multimedia:</strong> APIs que simplifican operaciones complejas como codificación de video, procesamiento de imágenes o reproducción de audio.</li>
+      </ul>
+      
+      <h3>Facade vs Adapter vs Mediator</h3>
+      <ul>
+        <li><strong>Facade:</strong> Simplifica una interfaz compleja ya existente sin añadir nuevas funcionalidades.</li>
+        <li><strong>Adapter:</strong> Convierte una interfaz en otra para hacerla compatible con un cliente, cambiando el formato de la interfaz.</li>
+        <li><strong>Mediator:</strong> Centraliza y coordina la comunicación entre objetos, mientras que Facade solo proporciona una interfaz simplificada sin coordinar interacciones.</li>
+      </ul>
+    `
   }
 };
 

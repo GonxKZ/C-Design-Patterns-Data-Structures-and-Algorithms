@@ -6,25 +6,70 @@
 
 const builderPattern = {
   id: 'builder',
-  name: "Builder",
-  category: "creational",
-  description: "Permite construir objetos complejos paso a paso, separando la construcción de un objeto de su representación final.",
+  name: 'Builder',
+  category: 'creational',
+  description: 'Separa la construcción de un objeto complejo de su representación, permitiendo que el mismo proceso de construcción pueda crear diferentes representaciones. Resuelve el problema de la construcción paso a paso de objetos complejos sin contaminar las clases principales con lógica de construcción.',
   
   theory: {
-    background: 'El patrón Builder se utiliza cuando la creación de un objeto complejo debe ser independiente de las partes que lo componen.',
-    problem: 'Cómo crear un objeto complejo con muchas configuraciones posibles sin tener constructores con múltiples parámetros o una gran cantidad de subclases.',
-    solution: 'Separar la construcción de un objeto complejo de su representación, permitiendo crear distintas representaciones con el mismo proceso de construcción.',
+    background: 'El patrón Builder fue formalizado por la Banda de los Cuatro (GoF) como una solución a las limitaciones de los constructores tradicionales. Se originó en respuesta a la necesidad de crear objetos con muchos parámetros opcionales o configuraciones complejas sin caer en constructores telescópicos o sobrecargados. El concepto se inspira en procesos de fabricación industrial, donde diferentes líneas de ensamblaje pueden producir variaciones del mismo producto base.',
+    
+    problem: 'Al crear objetos complejos, un constructor con muchos parámetros puede volverse difícil de usar y mantener. Esto se agrava cuando algunos parámetros son opcionales o cuando el proceso de construcción implica múltiples pasos con variaciones. Además, a veces queremos construir diferentes representaciones del mismo objeto, lo que complica aún más el uso de constructores tradicionales.',
+    
+    solution: 'El patrón Builder proporciona una solución al separar la construcción del objeto de su representación final. Introduce un objeto constructor (Builder) para crear partes de un objeto complejo paso a paso y un Director que coordina el proceso. El patrón permite construir diferentes representaciones usando el mismo proceso de construcción.',
+    
     applicability: [
-      "Cuando el algoritmo para crear un objeto complejo debe ser independiente de las partes que componen el objeto",
-      "Cuando el proceso de construcción debe permitir diferentes representaciones para el objeto construido",
-      "Cuando se quiere reducir la complejidad de constructores con muchos parámetros"
+      'Cuando el algoritmo para crear un objeto complejo debe ser independiente de las partes que componen el objeto y cómo se ensamblan',
+      'Cuando el proceso de construcción debe permitir diferentes representaciones o configuraciones del objeto que se está construyendo',
+      'Para manejar constructores con demasiados parámetros o con muchos parámetros opcionales',
+      'Cuando la construcción del objeto requiere pasos específicos que deben ejecutarse en un orden determinado',
+      'Para encapsular la lógica de construcción compleja en un lugar separado de la lógica de negocio'
     ],
+    
     consequences: [
-      "Permite variar la representación interna de un objeto",
-      "Aísla el código de construcción de la representación final",
-      "Proporciona control fino sobre el proceso de construcción",
-      "Puede resultar en un código más complejo si los objetos son simples"
-    ]
+      'Permite variar la representación interna de un producto sin afectar al código cliente',
+      'Aísla el código de construcción complejo de la lógica de negocio del producto',
+      'Proporciona mayor control sobre el proceso de construcción, permitiendo una construcción paso a paso',
+      'Mejora la legibilidad y mantenibilidad al eliminar constructores telescópicos',
+      'Facilita la adición de nuevos tipos de productos sin cambiar el código existente',
+      'Puede introducir complejidad adicional en el código si la estructura del objeto no justifica un builder separado'
+    ],
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Builder?</h3>
+      <ul>
+        <li><strong>Objetos con muchos parámetros:</strong> Cuando el constructor tiene muchos parámetros, especialmente si varios son opcionales.</li>
+        <li><strong>Construcción paso a paso:</strong> Cuando el objeto debe construirse en etapas claramente definidas.</li>
+        <li><strong>Diferentes representaciones:</strong> Cuando necesitas construir diferentes tipos o versiones del mismo objeto.</li>
+        <li><strong>Inmutabilidad:</strong> Cuando estás construyendo objetos inmutables, pero el proceso de construcción requiere varios pasos.</li>
+        <li><strong>Validación compleja:</strong> Cuando necesitas validar cada parte del objeto antes de finalizar su construcción.</li>
+      </ul>
+      
+      <h3>Variantes del patrón Builder:</h3>
+      <ul>
+        <li><strong>Builder fluido (method chaining):</strong> Implementación donde cada método del builder devuelve 'this', permitiendo encadenar llamadas como: <code>builder.setX().setY().build()</code>.</li>
+        <li><strong>Builder con Director:</strong> Incorpora una clase Director que define el orden de las operaciones, útil cuando hay algoritmos de construcción complejos que podrían reutilizarse.</li>
+        <li><strong>Builder anidado:</strong> Donde el Builder se define como una clase estática interna del producto, mejorando el encapsulamiento.</li>
+        <li><strong>Builder recursivo:</strong> Donde el builder devuelve un tipo diferente según el paso de construcción, asegurando que los métodos se llamen en cierto orden.</li>
+        <li><strong>Builder funcional:</strong> Utiliza funciones de orden superior o lambdas para especificar cómo se construye cada parte.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Constructores de consultas SQL:</strong> Como Hibernate Criteria, JOOQ o QueryDSL, que permiten construir consultas complejas paso a paso.</li>
+        <li><strong>Frameworks de UI:</strong> Para construir interfaces de usuario complejas, como SwiftUI, Flutter o JavaFX Scene Builder.</li>
+        <li><strong>Parsers y generadores de documentos:</strong> Para PDF, HTML o XML, como Apache PDFBox o javax.xml builders.</li>
+        <li><strong>Configuración de objetos:</strong> En frameworks como Spring (BeanDefinitionBuilder) o tests (TestContainers).</li>
+        <li><strong>HTTP Clients:</strong> Como OkHttp, donde RequestBuilder permite configurar solicitudes HTTP complejas.</li>
+        <li><strong>Constructores de objetos inmutables:</strong> En Java, clases como StringBuilder, Calendar.Builder, o Stream.Builder.</li>
+      </ul>
+      
+      <h3>Builder vs Factory Method vs Abstract Factory</h3>
+      <ul>
+        <li><strong>Builder:</strong> Se centra en la construcción paso a paso de objetos complejos, con énfasis en el proceso y los componentes individuales.</li>
+        <li><strong>Factory Method:</strong> Se enfoca en crear un objeto en un solo paso a través de una interfaz, delegando la creación a subclases.</li>
+        <li><strong>Abstract Factory:</strong> Proporciona una interfaz para crear familias de objetos relacionados sin especificar sus clases concretas.</li>
+      </ul>
+    `
   },
   
   implementations: {

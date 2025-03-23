@@ -2,7 +2,7 @@ const proxyPattern = {
   id: 'proxy',
   name: 'Proxy',
   category: 'structural',
-  description: 'El patrón Proxy proporciona un sustituto o representante de otro objeto para controlar el acceso a éste, permitiendo realizar operaciones antes o después de que la solicitud llegue al objeto original.',
+  description: 'Proporciona un sustituto o representante de otro objeto para controlar el acceso a este. El proxy actúa como intermediario, permitiendo realizar operaciones adicionales antes o después de acceder al objeto original.',
   
   implementations: {
     cppTraditional: {
@@ -331,29 +331,59 @@ public class ProxyDemo {
   ],
   
   theory: {
-    background: 'El patrón Proxy fue introducido por el Gang of Four (GoF) como un patrón estructural. Proviene del concepto de representación o sustitución, donde un objeto actúa en lugar de otro.',
-    problem: 'Necesitamos controlar el acceso a un objeto, ya sea porque es costoso de crear, requiere seguridad, o necesitamos añadir funcionalidades antes o después de acceder al objeto real.',
-    solution: 'El patrón Proxy proporciona un sustituto o placeholder para otro objeto para controlar el acceso a éste. El proxy implementa la misma interfaz que el objeto real, por lo que es transparente para el cliente.',
+    background: 'El patrón Proxy tiene sus raíces en la programación orientada a objetos y ha sido formalizado en el libro "Design Patterns" de la Banda de los Cuatro (GoF). Su concepto deriva de la idea de intermediación y representación, similar a un apoderado legal que actúa en nombre de otra persona.',
+    
+    problem: 'El acceso directo a un objeto puede no ser adecuado o posible por diversas razones: el objeto podría ser costoso de crear, estar en una ubicación remota, requerir permisos específicos para su acceso, o necesitar operaciones adicionales antes o después de las solicitudes principales.',
+    
+    solution: 'Crear una nueva clase (el Proxy) que implemente la misma interfaz que el objeto real (el Sujeto). El Proxy mantiene una referencia al Sujeto y controla el acceso a él, añadiendo funcionalidad adicional según sea necesario.',
+    
     applicability: [
-      'Control de acceso: cuando necesitas restringir el acceso al objeto original basándote en ciertos derechos o condiciones.',
-      'Proxy virtual: para crear objetos pesados bajo demanda, posponiendo su creación hasta que realmente se necesite.',
-      'Proxy de protección: para controlar el acceso a recursos sensibles según los permisos del solicitante.',
-      'Proxy remoto: para representar un objeto que está en un espacio de direcciones diferente o en otro servidor.',
-      'Proxy de cache: para almacenar los resultados de operaciones costosas y reutilizarlos cuando se repitan las mismas solicitudes.',
-      'Proxy de registro: para mantener un registro de accesos o modificaciones al objeto original.'
+      'Control de Acceso: Cuando necesitas restringir o controlar el acceso a ciertos objetos (Proxy de Protección)',
+      'Carga diferida: Para retrasar la creación de objetos costosos hasta que sean realmente necesarios (Proxy Virtual)',
+      'Registro y auditoría: Para mantener un registro de las operaciones realizadas sobre un objeto (Proxy de Registro)',
+      'Cacheo de resultados: Para almacenar resultados de operaciones costosas y reutilizarlos (Proxy de Caché)',
+      'Acceso remoto: Para representar objetos que se encuentran en otro espacio de direcciones o en servidores remotos (Proxy Remoto)',
+      'Referencias inteligentes: Para realizar operaciones adicionales cuando un objeto es accedido, como conteo de referencias o liberación automática de recursos'
     ],
-    benefits: [
-      'Introduce un nivel de indirección para el acceso al objeto real.',
-      'Puede mejorar el rendimiento mediante técnicas como carga perezosa o caché.',
-      'Permite añadir comportamientos antes o después de acceder al objeto real sin modificarlo.',
-      'Sigue el principio de responsabilidad única al separar las preocupaciones de acceso y de negocio.'
-    ],
-    drawbacks: [
-      'Introduce una capa adicional de indirección que puede complicar el código.',
-      'La respuesta del servicio podría retrasarse debido al procesamiento adicional del proxy.',
-      'Implementaciones complejas pueden llevar a problemas de rendimiento si no se diseñan correctamente.'
+    
+    consequences: [
+      'Añade una capa de indirección que puede mejorar la seguridad, el rendimiento o la gestión de recursos',
+      'Permite modificar el comportamiento del sistema sin cambiar el código cliente',
+      'Puede introducir latencia adicional en las operaciones si no se implementa cuidadosamente',
+      'Aumenta la complejidad del código al añadir nuevas clases',
+      'Puede ocultar detalles de implementación, mejorando la encapsulación'
     ]
-  }
+  },
+  
+  // CUÁNDO USAR ESTE PATRÓN
+  notes: `
+    <h3>¿Cuándo DEBES usar el patrón Proxy?</h3>
+    <ul>
+      <li><strong>Para control de acceso:</strong> Si necesitas implementar permisos o validaciones antes de permitir el acceso a un objeto.</li>
+      <li><strong>Para optimización de recursos:</strong> Cuando trabajas con objetos muy costosos en términos de creación o consumo de memoria.</li>
+      <li><strong>En sistemas distribuidos:</strong> Para representar localmente objetos que residen en servidores remotos.</li>
+      <li><strong>Para implementar cachés:</strong> Cuando necesitas almacenar resultados de operaciones costosas para evitar repetirlas.</li>
+      <li><strong>Para logging transparente:</strong> Si necesitas registrar todas las interacciones con ciertos objetos sin modificar su código.</li>
+    </ul>
+    
+    <h3>Variantes comunes del patrón Proxy:</h3>
+    <ul>
+      <li><strong>Proxy Virtual:</strong> Retrasa la creación del objeto real hasta que es absolutamente necesario.</li>
+      <li><strong>Proxy Remoto:</strong> Representa un objeto que existe en un espacio de direcciones diferente, como en otro servidor.</li>
+      <li><strong>Proxy de Protección:</strong> Controla el acceso al objeto real verificando permisos.</li>
+      <li><strong>Proxy Inteligente:</strong> Realiza acciones adicionales cuando se accede al objeto real, como conteo de referencias o bloqueo de recursos compartidos.</li>
+      <li><strong>Proxy de Caché:</strong> Almacena los resultados de operaciones costosas y los devuelve cuando se solicitan repetidamente.</li>
+    </ul>
+    
+    <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+    <ul>
+      <li><strong>Frameworks ORM:</strong> Como Hibernate en Java o Entity Framework en .NET, que actúan como proxies para objetos de base de datos.</li>
+      <li><strong>Servicios web RESTful:</strong> Donde los clientes interactúan con proxies locales que representan recursos remotos.</li>
+      <li><strong>Lazy loading de imágenes:</strong> En aplicaciones web donde se carga un placeholder primero y la imagen real sólo cuando es visible.</li>
+      <li><strong>AOP (Programación Orientada a Aspectos):</strong> Donde los proxies interceptan llamadas a métodos para añadir funcionalidades transversales como logging, seguridad o transacciones.</li>
+      <li><strong>Servicios de caché:</strong> Como Redis o Memcached, que actúan como proxies para reducir la carga en la base de datos.</li>
+    </ul>
+  `
 };
 
 export default proxyPattern;

@@ -2,23 +2,70 @@ const mementoPattern = {
   id: 'memento',
   name: 'Memento',
   category: 'behavioral',
-  description: 'El patrón Memento permite capturar y externalizar el estado interno de un objeto sin violar la encapsulación, de manera que el objeto pueda restaurarse a este estado más adelante.',
+  description: 'Permite capturar y almacenar el estado interno de un objeto sin violar su encapsulación, para que pueda ser restaurado a este estado posteriormente. Este patrón es fundamental para implementar mecanismos de "deshacer" y "rehacer" o puntos de guardado en aplicaciones.',
   
   theory: {
-    background: 'En muchas aplicaciones, necesitamos capturar el estado de un objeto para poder revertir cambios o implementar funcionalidades de "deshacer".',
-    problem: 'Necesitamos guardar el estado interno de un objeto para restaurarlo posteriormente, pero no queremos exponer su implementación interna, rompiendo la encapsulación.',
-    solution: 'El patrón Memento crea un objeto memento que contiene una instantánea del estado interno del objeto originator, sin exponer sus detalles internos.',
+    background: 'El patrón Memento fue formalizado por la Banda de los Cuatro (GoF) y se inspira en la idea de una "cápsula del tiempo" donde se guarda información para recuperarla posteriormente. Su nombre proviene del término latín "memento" que significa "recuerda", reflejando su propósito de mantener recuerdos del estado pasado de un objeto.',
+    
+    problem: 'En aplicaciones complejas, necesitamos capturar el estado interno de un objeto para poder revertir cambios, implementar operaciones de deshacer/rehacer, o crear puntos de guardado. Sin embargo, exponer directamente la estructura interna del objeto para extraer y restaurar su estado violaría la encapsulación y crearía dependencias indeseables.',
+    
+    solution: 'El patrón Memento resuelve este problema introduciendo tres componentes principales: el Originador (objeto cuyo estado se guarda), el Memento (objeto que almacena la instantánea del estado) y el Cuidador (gestiona y almacena los mementos sin modificar su contenido). El Originador crea un memento que encapsula su estado, el Cuidador lo almacena, y cuando sea necesario, el Originador puede restaurar su estado desde el memento.',
+    
     applicability: [
-      'Cuando necesitas guardar el estado de un objeto para restaurarlo posteriormente (como en funcionalidades de deshacer)',
-      'Cuando la obtención directa del estado expondría los detalles internos, rompiendo la encapsulación',
-      'Cuando deseas implementar puntos de control (checkpoints) que permitan volver a un estado anterior'
+      'Cuando necesitas capturar el estado de un objeto para restaurarlo posteriormente (mecanismos de deshacer/rehacer)',
+      'Cuando la obtención directa del estado expondría detalles de implementación, violando la encapsulación',
+      'Para implementar puntos de control (checkpoints) que permitan volver a estados anteriores',
+      'Cuando necesitas mantener un historial de cambios para auditoría o depuración',
+      'Para implementar transacciones que pueden ser revertidas en caso de error'
     ],
+    
     consequences: [
-      'Preserva la encapsulación del objeto originador',
-      'Simplifica el código del originador al delegar el almacenamiento del estado a otro objeto',
-      'Puede consumir mucha memoria si los mementos almacenan grandes cantidades de datos o se crean frecuentemente',
-      'Requiere coordinación con el mecanismo de gestión de vida del memento para evitar fugas de memoria'
-    ]
+      'Preserva la encapsulación al no exponer la estructura interna del Originador',
+      'Simplifica el código del Originador al delegar la responsabilidad de almacenar el historial de estados',
+      'Proporciona un mecanismo sencillo para volver a estados anteriores sin complejas operaciones inversas',
+      'Puede consumir mucha memoria si los estados son grandes o se crean muchos mementos',
+      'El cuidador debe gestionar adecuadamente el ciclo de vida de los mementos para evitar fugas de memoria',
+      'Los mementos pueden requerir copias profundas del estado para evitar cambios no deseados'
+    ],
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Memento?</h3>
+      <ul>
+        <li><strong>Funcionalidades de deshacer/rehacer:</strong> Para implementar estas funciones en editores de texto, gráficos o aplicaciones similares.</li>
+        <li><strong>Historial de estados:</strong> Cuando necesitas mantener un registro histórico de las transformaciones de un objeto.</li>
+        <li><strong>Puntos de guardado:</strong> En juegos o aplicaciones donde se requieren savepoints para volver a un estado anterior.</li>
+        <li><strong>Transacciones:</strong> Para implementar operaciones que pueden fallar y necesitan ser revertidas, como en bases de datos.</li>
+        <li><strong>Depuración:</strong> Para capturar instantáneas del estado de un sistema durante la depuración.</li>
+        <li><strong>Sincronización:</strong> Para mantener una copia del estado inicial y detectar cambios posteriores.</li>
+      </ul>
+      
+      <h3>Variantes del patrón Memento:</h3>
+      <ul>
+        <li><strong>Memento anidado:</strong> Donde el memento es una clase interna del originador para mayor encapsulación.</li>
+        <li><strong>Memento incremental:</strong> Que solo almacena los cambios entre estados para ahorrar memoria.</li>
+        <li><strong>Memento con comandos:</strong> Combinación con el patrón Command para guardar las operaciones en lugar de los estados.</li>
+        <li><strong>Memento con prototipos:</strong> Usa clonación para crear instantáneas completas del objeto originador.</li>
+        <li><strong>Memento persistente:</strong> Guarda los estados en almacenamiento persistente (archivos, bases de datos) para mantenerlos entre sesiones.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Editores de texto/gráficos:</strong> Microsoft Word, Photoshop, que implementan funciones de deshacer/rehacer.</li>
+        <li><strong>IDEs:</strong> Como Visual Studio, Eclipse, donde puedes deshacer cambios en el código.</li>
+        <li><strong>Juegos:</strong> Sistemas de guardado que capturan el estado actual del juego para restaurarlo posteriormente.</li>
+        <li><strong>Calculadoras:</strong> Que mantienen un historial de operaciones y resultados.</li>
+        <li><strong>Herramientas de modelado:</strong> Como UML o CAD, donde puedes revertir cambios en diseños.</li>
+        <li><strong>Hojas de cálculo:</strong> Excel o Google Sheets, que permiten deshacer múltiples operaciones.</li>
+        <li><strong>Aplicaciones de dibujo:</strong> Como Paint o Illustrator, para volver a versiones anteriores de un gráfico.</li>
+      </ul>
+      
+      <h3>Memento vs Command vs Prototype</h3>
+      <ul>
+        <li><strong>Memento:</strong> Se enfoca en capturar y almacenar el estado interno de un objeto para restaurarlo posteriormente, sin violar la encapsulación.</li>
+        <li><strong>Command:</strong> Encapsula una solicitud como un objeto, permitiendo parametrizar clientes con diferentes solicitudes. Puede usarse con Memento para implementar operaciones de deshacer que no dependen del estado completo.</li>
+        <li><strong>Prototype:</strong> Se centra en la clonación de objetos. Mientras Memento almacena estados para restaurarlos, Prototype crea nuevos objetos copiando los existentes.</li>
+      </ul>
+    `
   },
   
   implementations: {

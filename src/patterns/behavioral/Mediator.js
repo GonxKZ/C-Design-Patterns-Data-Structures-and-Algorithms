@@ -2,23 +2,85 @@ const mediatorPattern = {
   id: 'mediator',
   name: 'Mediator',
   category: 'behavioral',
-  description: 'El patrón Mediator define un objeto que encapsula cómo un conjunto de objetos interactúan entre sí, promoviendo el acoplamiento débil y evitando que los objetos se refieran explícitamente unos a otros.',
+  description: 'Define un objeto centralizado que gestiona la comunicación entre componentes de un sistema. El Mediator reduce el acoplamiento al evitar que los objetos se comuniquen directamente entre sí, canalizando toda la interacción a través de un punto central, lo que facilita la modificación, extensión y reutilización de componentes individuales.',
   
   theory: {
-    background: 'En sistemas complejos, los objetos suelen tener muchas conexiones directas entre sí, lo que dificulta su mantenimiento y reutilización.',
-    problem: 'Cuando tienes muchos objetos que necesitan comunicarse entre sí, las dependencias directas generan un código muy acoplado y difícil de mantener.',
-    solution: 'El Mediator centraliza la comunicación entre componentes a través de un objeto intermediario, reduciendo las dependencias directas.',
+    background: 'El patrón Mediator fue formalizado por la Banda de los Cuatro (GoF) y se inspira en el concepto de controladores de tráfico aéreo, donde múltiples aviones se comunican a través de una torre de control central en lugar de directamente entre ellos. Este patrón resuelve el problema de la comunicación de muchos a muchos reemplazándola por una comunicación de uno a muchos centralizada, lo que simplifica las interacciones en sistemas complejos con múltiples componentes interdependientes.',
+    
+    problem: 'En sistemas complejos, los componentes a menudo necesitan comunicarse entre sí, lo que puede llevar a una red enmarañada de dependencias si cada componente conoce y se comunica directamente con muchos otros. Esto crea un alto acoplamiento, dificulta la reutilización de componentes y complica los cambios en el sistema, ya que modificar un componente puede afectar a muchos otros. A medida que el sistema crece, estas interdependencias se vuelven exponencialmente más complejas y difíciles de mantener.',
+    
+    solution: 'El patrón Mediator sugiere crear un objeto mediador que actúa como hub central de comunicación. En lugar de que los componentes se comuniquen directamente, lo hacen a través del mediador. Cada componente conoce solo al mediador, no a los otros componentes, lo que reduce drásticamente el número de conexiones y dependencias en el sistema. El mediador encapsula la lógica de comunicación y coordinación entre componentes, permitiendo que estos evolucionen independientemente mientras mantienen la capacidad de interactuar de manera efectiva.',
+    
     applicability: [
-      'Cuando un conjunto de objetos se comunican de formas complejas y bien definidas',
-      'Cuando es difícil reutilizar un objeto porque se refiere y comunica con muchos otros objetos',
-      'Cuando el comportamiento distribuido entre varias clases debería ser personalizable sin demasiada herencia'
+      'Cuando un conjunto de objetos se comunican de formas bien definidas pero complejas, resultando en una arquitectura de difícil mantenimiento',
+      'Cuando la reutilización de un objeto es difícil porque depende y se comunica con muchos otros objetos',
+      'Cuando deseas personalizar el comportamiento distribuido entre varias clases sin crear muchas subclases',
+      'Cuando las interacciones entre grupos de objetos deben ser centralizadas para facilitar su mantenimiento',
+      'Cuando quieres desacoplar objetos que antes tenían muchas dependencias entre sí',
+      'Cuando el número de conexiones directas entre componentes hace que el sistema sea difícil de escalar y modificar',
+      'Cuando necesitas implementar comportamientos complejos que involucran la coordinación de múltiples objetos'
     ],
+    
     consequences: [
-      'Reduce el acoplamiento entre componentes del sistema',
-      'Centraliza el control de la interacción entre objetos',
-      'Simplifica los protocolos de comunicación entre objetos',
-      'El mediador puede volverse demasiado complejo si absorbe demasiada funcionalidad'
-    ]
+      'Limita el acoplamiento al minimizar las dependencias entre clases comunicantes',
+      'Reemplaza relaciones de muchos-a-muchos con relaciones de uno-a-muchos, que son más fáciles de entender y mantener',
+      'Centraliza el control, haciendo que el comportamiento del sistema sea más predecible',
+      'Facilita la modificación del sistema: se pueden cambiar mediadores independientemente de los colegas y viceversa',
+      'Mejora la testabilidad al permitir probar componentes aisladamente con mediadores simulados',
+      'Promueve la cohesión al agrupar comportamientos relacionados en el mediador',
+      'El mediador puede convertirse en un objeto monolítico y complejo, convirtiéndose potencialmente en un "punto único de fallo"',
+      'Puede introducir un nivel adicional de indirección que podría afectar al rendimiento en sistemas críticos',
+      'El mediador puede convertirse en un "dios objeto" que conoce demasiado y hace demasiado'
+    ],
+    
+    notes: `
+      <h3>¿Cuándo DEBES usar el patrón Mediator?</h3>
+      <ul>
+        <li><strong>Interfaces de usuario complejas:</strong> Cuando tienes muchos componentes de UI que necesitan comunicarse entre sí, como en aplicaciones de una sola página (SPA) donde un cambio en un widget debe reflejarse en otros.</li>
+        <li><strong>Sistemas con muchos componentes:</strong> Cuando un sistema tiene numerosos componentes con relaciones complejas que dificultan su mantenimiento, como en entornos de automatización industrial donde múltiples dispositivos deben coordinarse.</li>
+        <li><strong>Comunicación en tiempo real:</strong> Para sistemas como chats, juegos multijugador o colaboración en tiempo real, donde muchos participantes necesitan intercambiar información sin conocerse directamente.</li>
+        <li><strong>Flujos de trabajo:</strong> Para coordinar actividades en sistemas de flujo de trabajo donde múltiples componentes deben colaborar para completar un proceso, como en sistemas de procesamiento de pedidos o gestión de documentos.</li>
+        <li><strong>Arquitecturas orientadas a eventos:</strong> En sistemas basados en eventos donde múltiples componentes producen y consumen eventos que necesitan ser coordinados, como en aplicaciones de monitorización o IoT.</li>
+        <li><strong>Sistemas de simulación:</strong> Para coordinar la interacción entre diferentes entidades en simulaciones complejas, como simuladores de tráfico o aplicaciones de física.</li>
+      </ul>
+      
+      <h3>Variantes del patrón Mediator:</h3>
+      <ul>
+        <li><strong>Mediator tradicional:</strong> La implementación clásica donde el mediador conoce a todos los colegas y coordina sus interacciones de forma explícita.</li>
+        <li><strong>Event Bus:</strong> Una forma de mediador donde los componentes se comunican a través de eventos publicados en un bus central sin conocerse entre sí, común en arquitecturas de microservicios.</li>
+        <li><strong>Mediator con observadores:</strong> Combina el patrón Mediator con Observer para permitir que los componentes se registren y reciban notificaciones basadas en sus intereses.</li>
+        <li><strong>Broker de mensajes:</strong> Un mediador que enfatiza la transmisión asíncrona de mensajes entre componentes, a menudo con colas y prioridades, como RabbitMQ, Kafka o ActiveMQ.</li>
+        <li><strong>Mediator como servicio:</strong> En arquitecturas orientadas a servicios, donde un servicio mediador coordina las interacciones entre múltiples microservicios, como API Gateways.</li>
+        <li><strong>Sistemas de gestión de estado:</strong> Como Redux o Vuex, que actúan como mediadores centralizados para gestionar el estado de una aplicación y coordinar cambios.</li>
+      </ul>
+      
+      <h3>Ejemplos prácticos en aplicaciones reales:</h3>
+      <ul>
+        <li><strong>Frameworks de UI:</strong> Bibliotecas como React o Angular que utilizan mediadores para coordinar componentes de interfaz:</li>
+        <pre>
+// Ejemplo simplificado de Redux como mediador
+const store = createStore(reducer);
+// Los componentes se suscriben al mediador
+const unsubscribe = store.subscribe(() => console.log(store.getState()));
+// Los componentes envían acciones al mediador
+store.dispatch({ type: 'INCREMENT' });
+        </pre>
+        <li><strong>Sistemas de chat:</strong> Aplicaciones como Slack o WhatsApp, donde un servidor central actúa como mediador entre múltiples clientes, gestionando mensajes, presencia y notificaciones.</li>
+        <li><strong>Control de tráfico aéreo:</strong> Sistemas donde la torre de control actúa como mediador entre múltiples aviones, coordinando despegues, aterrizajes y rutas.</li>
+        <li><strong>Brokers de mensajería:</strong> Sistemas como RabbitMQ o Apache Kafka que actúan como mediadores entre productores y consumidores de mensajes, gestionando colas, enrutamiento y distribución.</li>
+        <li><strong>Sistemas de reservas:</strong> En hoteles o aerolíneas, donde un sistema central coordina reservas, disponibilidad y comunicación entre departamentos para evitar conflictos.</li>
+        <li><strong>Juegos multijugador:</strong> Donde un servidor de juego actúa como mediador entre múltiples jugadores, coordinando acciones, estado del juego y comunicación.</li>
+        <li><strong>Sistemas de domótica:</strong> Donde un hub central coordina la comunicación entre diferentes dispositivos inteligentes como luces, termostatos y cerraduras.</li>
+      </ul>
+      
+      <h3>Mediator vs Observer vs Facade vs Publish-Subscribe</h3>
+      <ul>
+        <li><strong>Mediator:</strong> Centraliza la comunicación entre objetos que de otro modo se comunicarían directamente, reduciendo las dependencias entre ellos y encapsulando la lógica de comunicación.</li>
+        <li><strong>Observer:</strong> Define una dependencia uno-a-muchos, pero a diferencia del Mediator, no centraliza la comunicación; los observadores conocen al sujeto y viceversa, siendo más adecuado para notificaciones simples.</li>
+        <li><strong>Facade:</strong> Proporciona una interfaz simplificada a un subsistema complejo, mientras que Mediator coordina las interacciones entre componentes existentes sin simplificar sus interfaces, centrándose en la comunicación.</li>
+        <li><strong>Publish-Subscribe:</strong> Similar al Mediator, pero con énfasis en la comunicación asíncrona y el desacoplamiento total; los publicadores y suscriptores no conocen la existencia unos de otros, solo el canal de comunicación.</li>
+      </ul>
+    `
   },
   
   implementations: {
@@ -470,7 +532,7 @@ public class MediatorDemo {
     }
   ],
   
-  notes: 'El patrón Mediator es especialmente útil en interfaces de usuario, donde muchos componentes interactúan entre sí. Frameworks como React utilizan un enfoque similar con el estado centralizado. En sistemas distribuidos, los message brokers como RabbitMQ o Kafka implementan conceptos similares al Mediator a gran escala.'
+  notes: 'El patrón Mediator es especialmente útil en interfaces de usuario, donde muchos componentes interactúan entre sí. Frameworks como React utilizan un enfoque similar con el estado centralizado (Redux, MobX). En sistemas distribuidos, los message brokers como RabbitMQ o Kafka implementan conceptos similares al Mediator a gran escala. Al implementar este patrón, es importante vigilar que el mediador no se convierta en un "dios objeto" sobrecargado. Para evitarlo, considera descomponer mediadores complejos en mediadores más pequeños y especializados, o utilizar enfoques basados en eventos para reducir el acoplamiento entre el mediador y sus componentes.'
 };
 
 export default mediatorPattern; 
